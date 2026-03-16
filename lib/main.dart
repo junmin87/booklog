@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'app/di.dart';
+import 'feature/book/presentation/pages/add_book_page.dart';
+import 'feature/book/presentation/pages/books_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +20,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ShellPage(),
+      home: MultiProvider(providers: appProviders, child: const ShellPage()),
     );
   }
 }
@@ -57,6 +62,11 @@ class _ShellPageState extends State<ShellPage> {
                 navigatorKey: _tabNavKeys[1],
                 tabName: 'Books',
                 onOpenDetail: () => _openDetail('Books Detail'),
+                rootBuilder: (_) => BooksPage(
+                  onOpenAddBook: () => _rootNavKey.currentState?.push(
+                    MaterialPageRoute(builder: (_) => const AddBookPage()),
+                  ),
+                ),
               ),
               _TabNavigator(
                 navigatorKey: _tabNavKeys[2],
@@ -106,21 +116,24 @@ class _TabNavigator extends StatelessWidget {
     required this.navigatorKey,
     required this.tabName,
     required this.onOpenDetail,
+    this.rootBuilder,
   });
 
   final GlobalKey<NavigatorState> navigatorKey;
   final String tabName;
   final VoidCallback onOpenDetail;
+  final WidgetBuilder? rootBuilder;
 
   @override
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
       onGenerateRoute: (_) => MaterialPageRoute(
-        builder: (_) => TabRootPage(
-          title: tabName,
-          onOpenDetail: onOpenDetail,
-        ),
+        builder: rootBuilder ??
+            (_) => TabRootPage(
+                  title: tabName,
+                  onOpenDetail: onOpenDetail,
+                ),
       ),
     );
   }
