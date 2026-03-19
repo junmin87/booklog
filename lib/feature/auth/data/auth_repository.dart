@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -53,18 +54,30 @@ class AuthRepository {
       }),
     );
 
+    // ✅ 핵심: body 디코딩
+    final decoded = jsonDecode(response.body);
+    debugPrint('statusCode: ${response.statusCode}');
+    debugPrint('raw body: ${response.body}');
+    debugPrint('decoded body: $decoded');
+
+
     if (response.statusCode != 200) {
       throw Exception('서버 로그인 실패: ${response.statusCode}');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
+
     // 서버 응답에서 accessToken 키 이름은 실제 서버 구현에 맞게 변경하세요.
-    final token = data['accessToken'] as String?;
+    // final token = data['accessToken'] as String?;
+
+    final token = data['serverToken'] as String?;
     if (token == null) throw Exception('서버 응답에 accessToken 없음');
 
     return token;
   }
 
+
+  // 서버 발급 토큰임
   // ── 토큰 유효성 검증 ─────────────────────────────────
   // POST /validate-token  →  200: 유효 (userId, email 반환) | 401/403: 만료
 

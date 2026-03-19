@@ -57,8 +57,9 @@ class AuthProvider with ChangeNotifier {
       final token = await _repository.appleLogin();
       await _repository.saveToken(token);
 
-      final user = await _repository.validateToken(token);
-      _user = user;
+      // 이건 서버 토큰으로 하는거임
+      // final user = await _repository.validateToken(token);
+      // _user = user;
       _setState(AuthState.loggedIn);
     } catch (e) {
       debugPrint('Apple 로그인 오류: $e');
