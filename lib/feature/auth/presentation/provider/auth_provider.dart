@@ -8,6 +8,10 @@ enum AuthState { idle, loading, loggedIn }
 class AuthProvider with ChangeNotifier {
   final AuthRepository _repository;
 
+  String? _countryCode;
+  String? get countryCode => _countryCode;
+  bool get isCountrySelected => _countryCode != null;
+
   AuthState _state = AuthState.idle;
   AuthUser? _user;
   String? _error;
@@ -24,6 +28,28 @@ class AuthProvider with ChangeNotifier {
   // 저장된 serverToken 확인 → 서버 /validate-token 호출
   // 유효하면 loggedIn, 만료/없으면 idle 상태 유지
 
+  // Future<void> tryAutoLogin() async {
+  //   final token = await _repository.getStoredToken();
+  //   if (token == null) return;
+  //
+  //   _setState(AuthState.loading);
+  //
+  //   try {
+  //     final user = await _repository.validateToken(token);
+  //     if (user != null) {
+  //       _user = user;
+  //       _setState(AuthState.loggedIn);
+  //     } else {
+  //       await _repository.deleteToken();
+  //       _setState(AuthState.idle);
+  //     }
+  //   } catch (e) {
+  //     debugPrint('자동 로그인 오류: $e');
+  //     _setState(AuthState.idle);
+  //   }
+  // }
+
+
   Future<void> tryAutoLogin() async {
     final token = await _repository.getStoredToken();
     if (token == null) return;
@@ -34,6 +60,7 @@ class AuthProvider with ChangeNotifier {
       final user = await _repository.validateToken(token);
       if (user != null) {
         _user = user;
+        _countryCode = user.countryCode;
         _setState(AuthState.loggedIn);
       } else {
         await _repository.deleteToken();
@@ -49,22 +76,49 @@ class AuthProvider with ChangeNotifier {
   // Repository에서 identityToken → 서버 교환 → accessToken 획득
   // 토큰 저장 후 바로 validate로 유저 정보 확정
 
+  // Future<void> signInWithApple() async {
+  //   _error = null;
+  //   _setState(AuthState.loading);
+  //
+  //   try {
+  //     final token = await _repository.appleLogin();
+  //     await _repository.saveToken(token);
+  //
+  //     // 이건 서버 토큰으로 하는거임
+  //     // final user = await _repository.validateToken(token);
+  //     // _user = user;
+  //     _setState(AuthState.loggedIn);
+  //   } catch (e) {
+  //     debugPrint('Apple 로그인 오류: $e');
+  //     _error = 'Login failed. Please try again.';
+  //     _setState(AuthState.idle);
+  //   }
+  // }
+
   Future<void> signInWithApple() async {
     _error = null;
     _setState(AuthState.loading);
 
     try {
-      final token = await _repository.appleLogin();
-      await _repository.saveToken(token);
+      final result = await _repository.appleLogin();
+      await _repository.saveToken(result['token'] as String);
 
-      // 이건 서버 토큰으로 하는거임
-      // final user = await _repository.validateToken(token);
-      // _user = user;
+      _countryCode = result['country_code'] as String?;
       _setState(AuthState.loggedIn);
     } catch (e) {
       debugPrint('Apple 로그인 오류: $e');
       _error = 'Login failed. Please try again.';
       _setState(AuthState.idle);
+    }
+  }
+
+  Future<void> saveCountry(String countryCode, String languageCode) async {
+    try {
+      await _repository.saveCountry(countryCode, languageCode);
+      _countryCode = countryCode;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('국가 저장 오류: $e');
     }
   }
 

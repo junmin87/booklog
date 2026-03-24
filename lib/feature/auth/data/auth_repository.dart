@@ -31,7 +31,9 @@ class AuthRepository {
   // 2) 서버 /apple/login 에 전송 → 서버가 accessToken 발급
   // 3) accessToken 반환 (저장은 Provider에서 처리)
 
-  Future<String> appleLogin() async {
+  // Future<String> appleLogin() async {
+
+  Future<Map<String, dynamic>> appleLogin() async {
     final credential = await SignInWithApple.getAppleIDCredential(
       scopes: [
         AppleIDAuthorizationScopes.email,
@@ -72,14 +74,43 @@ class AuthRepository {
 
     final token = data['serverToken'] as String?;
     if (token == null) throw Exception('서버 응답에 accessToken 없음');
+    final countryCode = data['country_code'] as String?;
 
-    return token;
+    // return token;
+    return {
+      'token': token,
+      'country_code': countryCode,
+    };
   }
 
 
   // 서버 발급 토큰임
   // ── 토큰 유효성 검증 ─────────────────────────────────
   // POST /validate-token  →  200: 유효 (userId, email 반환) | 401/403: 만료
+  //
+  // Future<AuthUser?> validateToken(String token) async {
+  //   final response = await http.post(
+  //     Uri.parse(_validateUrl),
+  //     headers: {
+  //       'Authorization': 'Bearer $token',
+  //       'Content-Type': 'application/json',
+  //     },
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     final body = jsonDecode(response.body) as Map<String, dynamic>;
+  //     return AuthUser(
+  //       userId: body['userId'] as String,
+  //       email: body['email'] as String?,
+  //     );
+  //   }
+  //
+  //   if (response.statusCode == 401 || response.statusCode == 403) {
+  //     return null; // 만료 → 재로그인 필요
+  //   }
+  //
+  //   throw Exception('토큰 검증 실패: ${response.statusCode}');
+  // }
 
   Future<AuthUser?> validateToken(String token) async {
     final response = await http.post(
@@ -95,13 +126,35 @@ class AuthRepository {
       return AuthUser(
         userId: body['userId'] as String,
         email: body['email'] as String?,
+        countryCode: body['country_code'] as String?,
       );
     }
 
     if (response.statusCode == 401 || response.statusCode == 403) {
-      return null; // 만료 → 재로그인 필요
+      return null;
     }
 
     throw Exception('토큰 검증 실패: ${response.statusCode}');
+  }
+
+  Future<void> saveCountry(String countryCode, String languageCode) async {
+    final token = await getStoredToken();
+    if (token == null) throw Exception('토큰 없음');
+
+    final response = await http.post(
+      Uri.parse('$_baseUrl/user/country'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'country_code': countryCode,
+        'language_code': languageCode,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('국가 저장 실패: ${response.statusCode}');
+    }
   }
 }

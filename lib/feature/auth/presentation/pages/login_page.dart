@@ -28,10 +28,23 @@ class _LoginPageState extends State<LoginPage> {
     await context.read<AuthProvider>().tryAutoLogin();
   }
 
+  // void _navigateToMain() {
+  //   if (_hasNavigated) return;
+  //   _hasNavigated = true;
+  //   Navigator.of(context).pushReplacementNamed('/main');
+  // }
+
+
   void _navigateToMain() {
     if (_hasNavigated) return;
     _hasNavigated = true;
-    Navigator.of(context).pushReplacementNamed('/main');
+
+    final auth = context.read<AuthProvider>();
+    if (auth.isCountrySelected) {
+      Navigator.of(context).pushReplacementNamed('/main');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/country-select');
+    }
   }
 
   @override
