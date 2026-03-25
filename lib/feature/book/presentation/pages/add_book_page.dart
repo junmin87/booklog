@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../domain/entity/book.dart';
 import '../provider/book_provider.dart';
+import 'book_search_page.dart';
 
 class AddBookPage extends StatefulWidget {
   const AddBookPage({super.key});
@@ -49,7 +50,18 @@ class _AddBookPageState extends State<AddBookPage> {
     final provider = context.watch<BookProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Book')),
+      appBar: AppBar(
+        title: const Text('Add Book'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Search books',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const BookSearchPage()),
+            ),
+          ),
+        ],
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
