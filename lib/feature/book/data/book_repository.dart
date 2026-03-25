@@ -109,6 +109,22 @@ class BookRepository {
   }
 
   Future<List<Book>> getBooks() async {
-    return [];
+    final token = await _storage.read(key: _kServerTokenKey);
+    if (token == null) throw Exception('Not logged in');
+
+    final response = await http.get(
+      Uri.parse('$_baseUrl/book/list'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load books: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final books = data['books'] as List<dynamic>;
+    return books
+        .map((b) => Book.fromJson(b as Map<String, dynamic>))
+        .toList();
   }
 }

@@ -83,38 +83,25 @@ class AuthRepository {
     };
   }
 
-
-  // 서버 발급 토큰임
-  // ── 토큰 유효성 검증 ─────────────────────────────────
-  // POST /validate-token  →  200: 유효 (userId, email 반환) | 401/403: 만료
-  //
-  // Future<AuthUser?> validateToken(String token) async {
-  //   final response = await http.post(
-  //     Uri.parse(_validateUrl),
-  //     headers: {
-  //       'Authorization': 'Bearer $token',
-  //       'Content-Type': 'application/json',
-  //     },
-  //   );
-  //
-  //   if (response.statusCode == 200) {
-  //     final body = jsonDecode(response.body) as Map<String, dynamic>;
-  //     return AuthUser(
-  //       userId: body['userId'] as String,
-  //       email: body['email'] as String?,
-  //     );
-  //   }
-  //
-  //   if (response.statusCode == 401 || response.statusCode == 403) {
-  //     return null; // 만료 → 재로그인 필요
-  //   }
-  //
-  //   throw Exception('토큰 검증 실패: ${response.statusCode}');
-  // }
-
-  Future<AuthUser?> validateToken(String token) async {
+  Future<bool> validateToken(String token) async {
     final response = await http.post(
       Uri.parse(_validateUrl),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) return true;
+    if (response.statusCode == 401 || response.statusCode == 403) return false;
+    throw Exception('토큰 검증 실패: ${response.statusCode}');
+  }
+
+
+
+  Future<AuthUser?> getMe(String token) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/user/me'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -124,17 +111,18 @@ class AuthRepository {
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       return AuthUser(
-        userId: body['userId'] as String,
+        id: body['id'] as String,
         email: body['email'] as String?,
-        countryCode: body['country_code'] as String?,
+        countryCode: body['countryCode'] as String?,
+        languageCode: body['languageCode'] as String?,
+        plan: body['plan'] as String? ?? 'free',
+        snsType: body['snsType'] as String,
+        snsId: body['snsId'] as String,
       );
     }
 
-    if (response.statusCode == 401 || response.statusCode == 403) {
-      return null;
-    }
-
-    throw Exception('토큰 검증 실패: ${response.statusCode}');
+    if (response.statusCode == 401 || response.statusCode == 403) return null;
+    throw Exception('유저 정보 조회 실패: ${response.statusCode}');
   }
 
   Future<void> saveCountry(String countryCode, String languageCode) async {

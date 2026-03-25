@@ -8,8 +8,24 @@ class BookProvider with ChangeNotifier {
 
   BookProvider(this._repository);
 
+  List<Book> books = [];
   bool isLoading = false;
   String? error;
+
+  Future<void> fetchBooks() async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      books = await _repository.getBooks();
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<bool> addBook(Book book) async {
     isLoading = true;
