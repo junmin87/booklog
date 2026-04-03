@@ -1,10 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LocaleController with ChangeNotifier {
-
-
+// Migration: Notifier replaces ChangeNotifier; state is returned from build() instead of mutated fields
+class LocaleNotifier extends Notifier<Locale?> {
+  @override
+  Locale? build() => null;
 }
+
+final localeNotifierProvider = NotifierProvider<LocaleNotifier, Locale?>(LocaleNotifier.new);

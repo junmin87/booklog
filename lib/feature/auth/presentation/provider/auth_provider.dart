@@ -1,99 +1,88 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/auth_repository.dart';
+import '../../../../app/di.dart';
 import '../../domain/entity/auth_user.dart';
 
-enum AuthState { idle, loading, loggedIn }
+// Migration: Immutable state class replaces the separate _state/_user/_countryCode/_error fields on ChangeNotifier
+class AuthNotifierState {
+  final AuthUser? user;
+  final String? countryCode;
+  final String? error;
 
-class AuthProvider with ChangeNotifier {
-  final AuthRepository _repository;
+  const AuthNotifierState({this.user, this.countryCode, this.error});
 
-  String? _countryCode;
-  String? get countryCode => _countryCode;
-  bool get isCountrySelected => _countryCode != null;
+  bool get isLoggedIn => user != null;
+  bool get isCountrySelected => countryCode != null;
 
-  AuthState _state = AuthState.idle;
-  AuthUser? _user;
-  String? _error;
+  AuthNotifierState copyWith({AuthUser? user, String? countryCode, String? error}) {
+    return AuthNotifierState(
+      user: user ?? this.user,
+      countryCode: countryCode ?? this.countryCode,
+      error: error ?? this.error,
+    );
+  }
+}
 
-  AuthState get state => _state;
-  bool get isLoggedIn => _state == AuthState.loggedIn;
-  bool get isLoading => _state == AuthState.loading;
-  AuthUser? get user => _user;
-  String? get error => _error;
+// Migration: AsyncNotifier replaces ChangeNotifier; build() runs auto-login once on first ref access
+class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
+  @override
+  Future<AuthNotifierState> build() async {
+    // Migration: build() replaces tryAutoLogin() called via addPostFrameCallback in LoginPage.initState
+    final repo = ref.read(authRepositoryProvider);
+    final token = await repo.getStoredToken();
+    if (token == null) return const AuthNotifierState();
 
-  AuthProvider(this._repository);
-
-  // ── 앱 시작 시 자동 로그인 시도 ───────────────────────
-  // 유효하면 loggedIn, 만료/없으면 idle 상태 유지
-
-  Future<void> tryAutoLogin() async {
-    final token = await _repository.getStoredToken();
-    if (token == null) return;
-
-    _setState(AuthState.loading);
-
-    try {
-      final isValid = await _repository.validateToken(token);
-      if (isValid) {
-        final AuthUser? user = await _repository.getMe(token);
-        _user = user;
-        _countryCode = user?.countryCode;
-        debugPrint('User : ${user.toString()}');
-        _setState(AuthState.loggedIn);
-      } else {
-        await _repository.deleteToken();
-        _setState(AuthState.idle);
-      }
-    } catch (e) {
-      debugPrint('자동 로그인 오류: $e');
-      _setState(AuthState.idle);
+    final isValid = await repo.validateToken(token);
+    if (isValid) {
+      final user = await repo.getMe(token);
+      debugPrint('User : ${user.toString()}');
+      return AuthNotifierState(user: user, countryCode: user?.countryCode);
+    } else {
+      await repo.deleteToken();
+      return const AuthNotifierState();
     }
   }
-
 
   Future<void> signInWithApple() async {
-    _error = null;
-    _setState(AuthState.loading);
-
+    // Migration: state = AsyncValue.loading() replaces _setState(AuthState.loading) + notifyListeners()
+    state = const AsyncValue.loading();
     try {
-      final result = await _repository.appleLogin();
-      await _repository.saveToken(result['token'] as String);
-
+      final repo = ref.read(authRepositoryProvider);
+      final result = await repo.appleLogin();
+      await repo.saveToken(result['token'] as String);
       final token = result['token'] as String;
-      final user = await _repository.getMe(token);
-      _user = user;
-      _countryCode = result['country_code'] as String?;
-      _setState(AuthState.loggedIn);
+      final user = await repo.getMe(token);
+      state = AsyncValue.data(AuthNotifierState(
+        user: user,
+        countryCode: result['country_code'] as String?,
+      ));
     } catch (e) {
       debugPrint('Apple 로그인 오류: $e');
-      _error = 'Login failed. Please try again.';
-      _setState(AuthState.idle);
+      state = const AsyncValue.data(
+        AuthNotifierState(error: 'Login failed. Please try again.'),
+      );
     }
   }
-
 
   Future<void> saveCountry(String countryCode, String languageCode) async {
     try {
-      await _repository.saveCountry(countryCode, languageCode);
-      _countryCode = countryCode;
-      notifyListeners();
+      final repo = ref.read(authRepositoryProvider);
+      await repo.saveCountry(countryCode, languageCode);
+      // Migration: copyWith + AsyncValue.data replaces field mutation + notifyListeners()
+      final current = state.value ?? const AuthNotifierState();
+      state = AsyncValue.data(current.copyWith(countryCode: countryCode));
     } catch (e) {
       debugPrint('국가 저장 오류: $e');
     }
   }
 
-  // ── 로그아웃 ──────────────────────────────────────────
-
   Future<void> logout() async {
-    await _repository.deleteToken();
-    _user = null;
-    _error = null;
-    _setState(AuthState.idle);
-  }
-
-  void _setState(AuthState newState) {
-    _state = newState;
-    notifyListeners();
+    await ref.read(authRepositoryProvider).deleteToken();
+    state = const AsyncValue.data(AuthNotifierState());
   }
 }
+
+// Migration: AsyncNotifierProvider declared globally; replaces ChangeNotifierProvider in main.dart MultiProvider
+final authNotifierProvider =
+    AsyncNotifierProvider<AuthNotifier, AuthNotifierState>(AuthNotifier.new);

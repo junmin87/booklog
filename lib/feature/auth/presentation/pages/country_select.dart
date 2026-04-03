@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../provider/auth_provider.dart';
 
-class CountrySelectPage extends StatelessWidget {
+// Migration: ConsumerWidget replaces StatelessWidget to access ref for Riverpod providers
+class CountrySelectPage extends ConsumerWidget {
   const CountrySelectPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -18,22 +19,19 @@ class CountrySelectPage extends StatelessWidget {
             children: [
               const Text(
                 'Select your region',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 48),
               _CountryButton(
                 flag: '🇰🇷',
                 label: '한국',
-                onTap: () => _onSelect(context, 'KR', 'ko'),
+                onTap: () => _onSelect(context, ref, 'KR', 'ko'),
               ),
               const SizedBox(height: 16),
               _CountryButton(
                 flag: '🌍',
                 label: 'Other',
-                onTap: () => _onSelect(context, 'US', 'en'),
+                onTap: () => _onSelect(context, ref, 'US', 'en'),
               ),
             ],
           ),
@@ -42,8 +40,10 @@ class CountrySelectPage extends StatelessWidget {
     );
   }
 
-  void _onSelect(BuildContext context, String countryCode, String languageCode) async {
-    await context.read<AuthProvider>().saveCountry(countryCode, languageCode);
+  void _onSelect(
+      BuildContext context, WidgetRef ref, String countryCode, String languageCode) async {
+    // Migration: ref.read replaces context.read
+    await ref.read(authNotifierProvider.notifier).saveCountry(countryCode, languageCode);
     if (context.mounted) {
       Navigator.of(context).pushReplacementNamed('/main');
     }

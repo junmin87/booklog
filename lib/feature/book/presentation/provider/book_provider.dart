@@ -1,46 +1,43 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/book_repository.dart';
+import '../../../../app/di.dart';
 import '../../domain/entity/book.dart';
 
-class BookProvider with ChangeNotifier {
-  final BookRepository _repository;
-
-  BookProvider(this._repository);
-
-  List<Book> books = [];
-  bool isLoading = false;
-  String? error;
-
-  Future<void> fetchBooks() async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
-
-    try {
-      books = await _repository.getBooks();
-    } catch (e) {
-      error = e.toString();
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
+// Migration: AsyncNotifier replaces ChangeNotifier; build() fetches books on first ref access
+class BookNotifier extends AsyncNotifier<List<Book>> {
+  @override
+  Future<List<Book>> build() async {
+    // Migration: build() replaces fetchBooks() called in BooksPage.initState
+    return ref.read(bookRepositoryProvider).getBooks();
   }
 
-  Future<bool> addBook(Book book) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+  // Future<bool> addBook(Book book) async {
+  //   try {
+  //     await ref.read(bookRepositoryProvider).addBook(book);
+  //     // Migration: ref.invalidateSelf() re-runs build() to refresh the list; replaces manual notifyListeners()
+  //     ref.invalidateSelf();
+  //     return true;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 
+  Future<bool> addBook(Book book) async {
     try {
-      await _repository.addBook(book);
+      debugPrint('▶ addBook: calling repository...');
+      await ref.read(bookRepositoryProvider).addBook(book);
+      debugPrint('▶ addBook: repository success');
+      ref.invalidateSelf();
+      debugPrint('▶ addBook: after invalidateSelf, returning true');
       return true;
     } catch (e) {
-      error = e.toString();
+      debugPrint('▶ addBook: caught error: $e');
       return false;
-    } finally {
-      isLoading = false;
-      notifyListeners();
     }
   }
 }
+
+// Migration: AsyncNotifierProvider declared globally; replaces ChangeNotifierProvider in main.dart MultiProvider
+final bookNotifierProvider =
+    AsyncNotifierProvider<BookNotifier, List<Book>>(BookNotifier.new);

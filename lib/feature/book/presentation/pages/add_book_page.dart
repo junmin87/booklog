@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entity/book.dart';
 import '../provider/book_provider.dart';
 import 'book_search_page.dart';
 
-class AddBookPage extends StatefulWidget {
+// Migration: ConsumerStatefulWidget replaces StatefulWidget to access ref alongside local form state
+class AddBookPage extends ConsumerStatefulWidget {
   const AddBookPage({super.key});
 
   @override
-  State<AddBookPage> createState() => _AddBookPageState();
+  ConsumerState<AddBookPage> createState() => _AddBookPageState();
 }
 
-class _AddBookPageState extends State<AddBookPage> {
+class _AddBookPageState extends ConsumerState<AddBookPage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _authorController = TextEditingController();
@@ -20,6 +21,9 @@ class _AddBookPageState extends State<AddBookPage> {
 
   ReadingStatus _status = ReadingStatus.wantToRead;
   int? _rating;
+  // Migration: local state tracks submit loading/error; provider.isLoading/error are no longer shared here
+  bool _isSubmitting = false;
+  String? _submitError;
 
   @override
   void dispose() {
@@ -34,21 +38,38 @@ class _AddBookPageState extends State<AddBookPage> {
 
     final book = Book(
       title: _titleController.text.trim(),
-      author: _authorController.text.trim().isEmpty ? null : _authorController.text.trim(),
+      author: _authorController.text.trim().isEmpty
+          ? null
+          : _authorController.text.trim(),
       status: _status,
       rating: _rating,
-      notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+      notes: _notesController.text.trim().isEmpty
+          ? null
+          : _notesController.text.trim(),
       createdAt: DateTime.now(),
     );
 
-    final success = await context.read<BookProvider>().addBook(book);
-    if (success && mounted) Navigator.of(context).pop();
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
+
+    // Migration: ref.read(provider.notifier).method() replaces context.read<T>().method()
+    final success = await ref.read(bookNotifierProvider.notifier).addBook(book);
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.of(context).pop();
+    } else {
+      setState(() {
+        _isSubmitting = false;
+        _submitError = 'Failed to add book';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<BookProvider>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Book'),
@@ -71,7 +92,8 @@ class _AddBookPageState extends State<AddBookPage> {
               controller: _titleController,
               decoration: const InputDecoration(labelText: 'Title *'),
               textCapitalization: TextCapitalization.sentences,
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Title is required' : null,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Title is required' : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -84,9 +106,12 @@ class _AddBookPageState extends State<AddBookPage> {
               value: _status,
               decoration: const InputDecoration(labelText: 'Status'),
               items: const [
-                DropdownMenuItem(value: ReadingStatus.wantToRead, child: Text('Want to Read')),
-                DropdownMenuItem(value: ReadingStatus.reading, child: Text('Reading')),
-                DropdownMenuItem(value: ReadingStatus.finished, child: Text('Finished')),
+                DropdownMenuItem(
+                    value: ReadingStatus.wantToRead, child: Text('Want to Read')),
+                DropdownMenuItem(
+                    value: ReadingStatus.reading, child: Text('Reading')),
+                DropdownMenuItem(
+                    value: ReadingStatus.finished, child: Text('Finished')),
               ],
               onChanged: (v) => setState(() => _status = v!),
             ),
@@ -110,15 +135,19 @@ class _AddBookPageState extends State<AddBookPage> {
               textCapitalization: TextCapitalization.sentences,
             ),
             const SizedBox(height: 24),
-            if (provider.error != null)
+            if (_submitError != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Text(provider.error!, style: const TextStyle(color: Colors.red)),
+                child: Text(_submitError!,
+                    style: const TextStyle(color: Colors.red)),
               ),
             FilledButton(
-              onPressed: provider.isLoading ? null : _submit,
-              child: provider.isLoading
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+              onPressed: _isSubmitting ? null : _submit,
+              child: _isSubmitting
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2))
                   : const Text('Save'),
             ),
           ],

@@ -1,53 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entity/book.dart';
 import '../provider/book_provider.dart';
 
-class BooksPage extends StatefulWidget {
+// Migration: ConsumerWidget replaces StatefulWidget; no initState needed as build() handles initial fetch
+class BooksPage extends ConsumerWidget {
   const BooksPage({super.key, required this.onOpenAddBook});
 
   final VoidCallback onOpenAddBook;
 
   @override
-  State<BooksPage> createState() => _BooksPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Migration: ref.watch replaces Consumer<BookProvider>; AsyncValue.when handles loading/error/data states
+    final asyncBooks = ref.watch(bookNotifierProvider);
 
-class _BooksPageState extends State<BooksPage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookProvider>().fetchBooks();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Books')),
-      body: Consumer<BookProvider>(
-        builder: (context, provider, _) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (provider.error != null) {
-            return Center(child: Text(provider.error!));
-          }
-          if (provider.books.isEmpty) {
-            return const Center(child: Text('No books yet.'));
-          }
+      body: asyncBooks.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text(e.toString())),
+        data: (books) {
+          if (books.isEmpty) return const Center(child: Text('No books yet.'));
           return ListView.builder(
-            itemCount: provider.books.length,
-            itemBuilder: (context, index) {
-              final book = provider.books[index];
-              return _BookListItem(book: book);
-            },
+            itemCount: books.length,
+            itemBuilder: (context, index) => _BookListItem(book: books[index]),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: widget.onOpenAddBook,
+        onPressed: onOpenAddBook,
         child: const Icon(Icons.add),
       ),
     );

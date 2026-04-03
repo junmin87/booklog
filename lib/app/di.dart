@@ -1,11 +1,8 @@
-// import 'package:provider/provider.dart';
-//
-// import '../feature/auth/data/auth_repository.dart';
-// import '../feature/auth/presentation/provider/auth_provider.dart';
-// import '../feature/book/data/book_repository.dart';
-// import '../feature/book/presentation/provider/book_provider.dart';
-//
-// final appProviders = [
-//   ChangeNotifierProvider(create: (_) => AuthProvider(AuthRepository())),
-//   ChangeNotifierProvider(create: (_) => BookProvider(BookRepository())),
-// ];
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../feature/auth/data/auth_repository.dart';
+import '../feature/book/data/book_repository.dart';
+
+// Migration: Repositories declared as global Providers; replaces passing instances via ChangeNotifierProvider constructor
+final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepository());
+final bookRepositoryProvider = Provider<BookRepository>((ref) => BookRepository());

@@ -1,61 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/book_repository.dart';
 import '../provider/book_search_provider.dart';
 
-class BookSearchPage extends StatelessWidget {
+// Migration: ConsumerWidget replaces the StatelessWidget that wrapped a scoped ChangeNotifierProvider
+class BookSearchPage extends ConsumerWidget {
   const BookSearchPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => BookSearchProvider(BookRepository()),
-      child: const _BookSearchView(),
-    );
-  }
-}
-
-class _BookSearchView extends StatelessWidget {
-  const _BookSearchView();
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<BookSearchProvider>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Migration: ref.watch replaces context.watch; autoDispose provider cleans up when page is popped
+    final asyncState = ref.watch(bookSearchNotifierProvider);
+    final state = asyncState.valueOrNull ?? const BookSearchState();
 
     return Scaffold(
       appBar: AppBar(
         title: _SearchField(
-          onSearch: (q) => context.read<BookSearchProvider>().searchBooks(q),
+          // Migration: ref.read(provider.notifier) replaces context.read<T>() for triggering actions
+          onSearch: (q) =>
+              ref.read(bookSearchNotifierProvider.notifier).searchBooks(q),
         ),
       ),
-      body: _buildBody(context, provider),
+      body: _buildBody(context, ref, asyncState.isLoading, state),
     );
   }
 
-  Widget _buildBody(BuildContext context, BookSearchProvider provider) {
-    if (provider.isSearching) {
+  Widget _buildBody(
+      BuildContext context, WidgetRef ref, bool isSearching, BookSearchState state) {
+    if (isSearching) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (provider.error != null) {
+    if (state.error != null) {
       return Center(
-        child: Text(provider.error!, style: const TextStyle(color: Colors.red)),
+        child: Text(state.error!, style: const TextStyle(color: Colors.red)),
       );
     }
 
-    if (provider.results.isEmpty) {
+    if (state.results.isEmpty) {
       return const Center(child: Text('Search for a book by title or author'));
     }
 
     return Stack(
       children: [
         ListView.builder(
-          itemCount: provider.results.length,
-          itemBuilder: (context, i) =>
-              _BookTile(result: provider.results[i]),
+          itemCount: state.results.length,
+          itemBuilder: (context, i) => _BookTile(result: state.results[i]),
         ),
-        if (provider.isAdding)
+        if (state.isAdding)
           const Positioned.fill(
             child: ColoredBox(
               color: Colors.black26,
@@ -99,12 +92,13 @@ class _SearchFieldState extends State<_SearchField> {
   }
 }
 
-class _BookTile extends StatelessWidget {
+// Migration: ConsumerWidget replaces StatelessWidget to access ref for provider read/write
+class _BookTile extends ConsumerWidget {
   const _BookTile({required this.result});
   final BookSearchResult result;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: result.cover != null
           ? Image.network(
@@ -119,13 +113,13 @@ class _BookTile extends StatelessWidget {
       subtitle: Text(
         [result.author, result.publisher].whereType<String>().join(' · '),
       ),
-      onTap: () => _add(context),
+      onTap: () => _add(context, ref),
     );
   }
 
-  Future<void> _add(BuildContext context) async {
-    final provider = context.read<BookSearchProvider>();
-    final success = await provider.addBook(result);
+  Future<void> _add(BuildContext context, WidgetRef ref) async {
+    final success =
+        await ref.read(bookSearchNotifierProvider.notifier).addBook(result);
     if (!context.mounted) return;
 
     if (success) {
@@ -134,8 +128,9 @@ class _BookTile extends StatelessWidget {
       );
       Navigator.of(context).pop(true);
     } else {
+      final error = ref.read(bookSearchNotifierProvider).value?.error;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.error ?? 'Failed to add book')),
+        SnackBar(content: Text(error ?? 'Failed to add book')),
       );
     }
   }

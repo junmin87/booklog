@@ -6,16 +6,11 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'app/di.dart';
 import 'app/shell_page.dart';
-import 'feature/auth/data/auth_repository.dart';
 import 'feature/auth/presentation/pages/country_select.dart';
 import 'feature/auth/presentation/pages/login_page.dart';
-import 'feature/auth/presentation/provider/auth_provider.dart';
-import 'feature/book/data/book_repository.dart';
-import 'feature/book/presentation/provider/book_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +40,8 @@ Future<void> main() async {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
 
-  runApp(const MyApp());
+  // Migration: ProviderScope replaces MultiProvider; all providers are now declared globally at file level
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -53,34 +49,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider(AuthRepository()),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => BookProvider(BookRepository()),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Book Log',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        // 🔥 핵심: home 제거하고 initialRoute 사용
-        initialRoute: '/',
-
-        // routes: {
-        //   '/': (_) => const LoginPage(),
-        //   '/main': (_) => const ShellPage(),
-        // },
-        routes: {
-          '/': (_) => const LoginPage(),
-          '/country-select': (_) => const CountrySelectPage(),
-          '/main': (_) => const ShellPage(),
-        },
+    return MaterialApp(
+      title: 'Book Log',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
+      // 🔥 핵심: home 제거하고 initialRoute 사용
+      initialRoute: '/',
+      routes: {
+        '/': (_) => const LoginPage(),
+        '/country-select': (_) => const CountrySelectPage(),
+        '/main': (_) => const ShellPage(),
+      },
     );
   }
 }
