@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/book_repository.dart';
+import '../../domain/entity/book_search_result.dart';
 import '../provider/book_search_provider.dart';
 
-// Migration: ConsumerWidget replaces the StatelessWidget that wrapped a scoped ChangeNotifierProvider
 class BookSearchPage extends ConsumerWidget {
   const BookSearchPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Migration: ref.watch replaces context.watch; autoDispose provider cleans up when page is popped
     final asyncState = ref.watch(bookSearchNotifierProvider);
     final state = asyncState.valueOrNull ?? const BookSearchState();
 
     return Scaffold(
       appBar: AppBar(
         title: _SearchField(
-          // Migration: ref.read(provider.notifier) replaces context.read<T>() for triggering actions
           onSearch: (q) =>
               ref.read(bookSearchNotifierProvider.notifier).searchBooks(q),
         ),
@@ -26,8 +23,8 @@ class BookSearchPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBody(
-      BuildContext context, WidgetRef ref, bool isSearching, BookSearchState state) {
+  Widget _buildBody(BuildContext context, WidgetRef ref, bool isSearching,
+      BookSearchState state) {
     if (isSearching) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -92,7 +89,6 @@ class _SearchFieldState extends State<_SearchField> {
   }
 }
 
-// Migration: ConsumerWidget replaces StatelessWidget to access ref for provider read/write
 class _BookTile extends ConsumerWidget {
   const _BookTile({required this.result});
   final BookSearchResult result;
@@ -126,7 +122,7 @@ class _BookTile extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('"${result.title}" added')),
       );
-      Navigator.of(context).pop(true);
+      Navigator.of(context).pop();
     } else {
       final error = ref.read(bookSearchNotifierProvider).value?.error;
       ScaffoldMessenger.of(context).showSnackBar(

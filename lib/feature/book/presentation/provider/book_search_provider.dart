@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/di.dart';
-import '../../data/book_repository.dart';
+import '../../domain/entity/book_search_result.dart';
+import 'book_provider.dart';
 
-// Migration: Immutable state class replaces public mutable fields on ChangeNotifier
 class BookSearchState {
   final List<BookSearchResult> results;
   final bool isAdding;
@@ -16,7 +16,6 @@ class BookSearchState {
   });
 }
 
-// Migration: AutoDisposeAsyncNotifier disposes when BookSearchPage is popped; replaces scoped ChangeNotifierProvider
 class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
   @override
   Future<BookSearchState> build() async => const BookSearchState();
@@ -27,7 +26,6 @@ class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
       return;
     }
 
-    // Migration: state = AsyncValue.loading() replaces isSearching flag + notifyListeners()
     state = const AsyncValue.loading();
     try {
       final results =
@@ -43,7 +41,8 @@ class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
     state = AsyncValue.data(
         BookSearchState(results: current.results, isAdding: true));
     try {
-      await ref.read(bookRepositoryProvider).addBook(result.toBook());
+      await ref.read(addBookUseCaseProvider).execute(result);
+      ref.invalidate(bookNotifierProvider);
       state = AsyncValue.data(BookSearchState(results: current.results));
       return true;
     } catch (e) {
@@ -54,7 +53,6 @@ class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
   }
 }
 
-// Migration: autoDispose cleans up provider automatically when BookSearchPage is popped
 final bookSearchNotifierProvider =
     AsyncNotifierProvider.autoDispose<BookSearchNotifier, BookSearchState>(
   BookSearchNotifier.new,

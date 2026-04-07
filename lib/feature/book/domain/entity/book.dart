@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 enum ReadingStatus { wantToRead, reading, finished }
 
 extension ReadingStatusX on ReadingStatus {
@@ -25,7 +27,8 @@ extension ReadingStatusX on ReadingStatus {
 }
 
 class Book {
-  final int? id;
+  // final int? id;
+  final String? id;
   final String title;
   final String? author;
   final String? publisher;
@@ -60,8 +63,11 @@ class Book {
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
+    debugPrint('Book.fromJson >>> ${json}' );
+
     return Book(
-      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()),
+      // id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()),
+      id: json['id']! as String,
       title: json['title'] as String,
       author: json['author'] as String?,
       publisher: json['publisher'] as String?,

@@ -3,16 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entity/book.dart';
 import '../provider/book_provider.dart';
+import 'book_detail_page.dart';
+import 'book_search_page.dart';
 
-// Migration: ConsumerWidget replaces StatefulWidget; no initState needed as build() handles initial fetch
 class BooksPage extends ConsumerWidget {
-  const BooksPage({super.key, required this.onOpenAddBook});
-
-  final VoidCallback onOpenAddBook;
+  const BooksPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Migration: ref.watch replaces Consumer<BookProvider>; AsyncValue.when handles loading/error/data states
     final asyncBooks = ref.watch(bookNotifierProvider);
 
     return Scaffold(
@@ -29,7 +27,9 @@ class BooksPage extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: onOpenAddBook,
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const BookSearchPage()),
+        ),
         child: const Icon(Icons.add),
       ),
     );
@@ -55,6 +55,11 @@ class _BookListItem extends StatelessWidget {
       title: Text(book.title),
       subtitle: book.author != null ? Text(book.author!) : null,
       trailing: _StatusBadge(status: book.status),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => BookDetailPage(book: book),
+        ),
+      ),
     );
   }
 }
