@@ -9,6 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/shell_page.dart';
+import 'app/theme.dart';
 import 'feature/auth/presentation/pages/country_select.dart';
 import 'feature/auth/presentation/pages/login_page.dart';
 
@@ -51,10 +52,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Book Log',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       // 🔥 핵심: home 제거하고 initialRoute 사용
       initialRoute: '/',
       routes: {

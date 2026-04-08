@@ -28,7 +28,7 @@ extension ReadingStatusX on ReadingStatus {
 
 class Book {
   // final int? id;
-  final String? id;
+  final String id;
   final String title;
   final String? author;
   final String? publisher;
@@ -43,9 +43,11 @@ class Book {
   final int? currentPage;
   final int? totalPage;
   final DateTime createdAt;
+  final String? representativeSentence;
 
   const Book({
-    this.id,
+    // this.id,
+    required this.id,
     required this.title,
     this.author,
     this.publisher,
@@ -60,6 +62,7 @@ class Book {
     this.currentPage,
     this.totalPage,
     required this.createdAt,
+    this.representativeSentence,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -67,7 +70,7 @@ class Book {
 
     return Book(
       // id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()),
-      id: json['id']! as String,
+      id: json['id'] as String,
       title: json['title'] as String,
       author: json['author'] as String?,
       publisher: json['publisher'] as String?,
@@ -76,6 +79,7 @@ class Book {
       currentPage: json['current_page'] == null ? null : (json['current_page'] is int ? json['current_page'] as int : int.tryParse(json['current_page'].toString())),
       totalPage: json['total_page'] == null ? null : (json['total_page'] is int ? json['total_page'] as int : int.tryParse(json['total_page'].toString())),
       createdAt: DateTime.parse(json['created_at'] as String),
+      representativeSentence: json['representative_sentence'] as String?,
     );
   }
 }

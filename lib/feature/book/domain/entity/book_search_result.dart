@@ -1,6 +1,7 @@
 import 'book.dart';
 
 class BookSearchResult {
+  final String id;
   final String title;
   final String? author;
   final String? publisher;
@@ -11,6 +12,7 @@ class BookSearchResult {
   final String? categoryName;
 
   const BookSearchResult({
+    required this.id,
     required this.title,
     this.author,
     this.publisher,
@@ -23,6 +25,7 @@ class BookSearchResult {
 
   factory BookSearchResult.fromJson(Map<String, dynamic> json) {
     return BookSearchResult(
+      id: json['id'] as String,
       title: json['title'] as String,
       author: json['author'] as String?,
       publisher: json['publisher'] as String?,
@@ -35,6 +38,7 @@ class BookSearchResult {
   }
 
   Book toBook({ReadingStatus status = ReadingStatus.reading}) => Book(
+        id: id,
         title: title,
         author: author,
         publisher: publisher,
