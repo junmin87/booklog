@@ -33,3 +33,11 @@ Solo developer project, currently in active development.
 ## Status
 
 🚧 Active development
+
+
+## Contact
+junmin.lee15@gmail.com
+
+
+
+
