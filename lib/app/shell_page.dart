@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../core/widgets/detail_page.dart';
-import '../core/widgets/tab_root_page.dart';
+import 'app_colors.dart';
 import '../feature/book/presentation/pages/books_page.dart';
 import '../feature/setting/presentation/pages/setting_page.dart';
 
@@ -19,7 +18,7 @@ class _ShellPageState extends State<ShellPage> {
   int _index = 0;
 
   // 탭별 네비게이터 키(각 탭의 stack/state 유지)
-  final _tabNavKeys = List.generate(4, (_) => GlobalKey<NavigatorState>());
+  final _tabNavKeys = List.generate(2, (_) => GlobalKey<NavigatorState>());
 
   @override
   Widget build(BuildContext context) {
@@ -29,41 +28,26 @@ class _ShellPageState extends State<ShellPage> {
         children: [
           _TabNavigator(
             navigatorKey: _tabNavKeys[0],
-            tabName: 'Home',
-            onOpenDetail: () => _openDetail(context, 'Home Detail'),
-          ),
-          _TabNavigator(
-            navigatorKey: _tabNavKeys[1],
-            tabName: 'Books',
             rootBuilder: (_) => const BooksPage(),
           ),
           _TabNavigator(
-            navigatorKey: _tabNavKeys[2],
-            tabName: 'Stats',
-            onOpenDetail: () => _openDetail(context, 'Stats Detail'),
-          ),
-          _TabNavigator(
-            navigatorKey: _tabNavKeys[3],
-            tabName: 'Settings',
+            navigatorKey: _tabNavKeys[1],
             rootBuilder: (_) => const SettingPage(),
           ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        elevation: 12,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
+        backgroundColor: AppColors.darkCard,
+        elevation: 0,
+        selectedItemColor: AppColors.accent,
+        unselectedItemColor: AppColors.onDarkMuted,
         showUnselectedLabels: true,
         currentIndex: _index,
         onTap: (i) => setState(() => _index = i),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
               icon: Icon(Icons.menu_book), label: 'Books'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart), label: 'Stats'),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings), label: 'Settings'),
         ],
@@ -71,38 +55,23 @@ class _ShellPageState extends State<ShellPage> {
     );
   }
 
-  void _openDetail(BuildContext context, String title) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => DetailPage(title: title)),
-    );
-  }
 }
 
 /// 탭마다 독립된 Navigator (탭 이동 시 상태/스크롤/스택 유지)
 class _TabNavigator extends StatelessWidget {
   const _TabNavigator({
     required this.navigatorKey,
-    required this.tabName,
-    this.onOpenDetail,
-    this.rootBuilder,
+    required this.rootBuilder,
   });
 
   final GlobalKey<NavigatorState> navigatorKey;
-  final String tabName;
-  final VoidCallback? onOpenDetail;
-  final WidgetBuilder? rootBuilder;
+  final WidgetBuilder rootBuilder;
 
   @override
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
-      onGenerateRoute: (_) => MaterialPageRoute(
-        builder: rootBuilder ??
-            (_) => TabRootPage(
-                  title: tabName,
-                  onOpenDetail: onOpenDetail ?? () {},
-                ),
-      ),
+      onGenerateRoute: (_) => MaterialPageRoute(builder: rootBuilder),
     );
   }
 }

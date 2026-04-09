@@ -39,6 +39,21 @@ class SentenceRepositoryImpl implements SentenceRepository {
   }
 
   @override
+  Future<void> setRepresentative(String bookId, String sentenceId) async {
+    final token = await _storage.read(key: _kServerTokenKey);
+    if (token == null) throw Exception('Not logged in');
+
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/books/$bookId/sentences/$sentenceId/representative'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Set representative failed: ${response.statusCode}');
+    }
+  }
+
+  @override
   Future<List<Sentence>> getSentences(String bookId) async {
     debugPrint('getSentences >>  ${bookId} ');
     debugPrint('getSentences >>  ${bookId} ');

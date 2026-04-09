@@ -9,6 +9,7 @@ import '../feature/book/domain/usecase/add_book_use_case.dart';
 import '../feature/book/domain/usecase/add_sentence_use_case.dart';
 import '../feature/book/domain/usecase/get_books_use_case.dart';
 import '../feature/book/domain/usecase/get_sentences_use_case.dart';
+import '../feature/book/domain/usecase/set_representative_sentence_use_case.dart';
 
 final authRepositoryProvider =
     Provider<AuthRepository>((ref) => AuthRepository());
@@ -33,4 +34,10 @@ final addSentenceUseCaseProvider = Provider<AddSentenceUseCase>(
 
 final getSentencesUseCaseProvider = Provider<GetSentencesUseCase>(
   (ref) => GetSentencesUseCase(ref.read(sentenceRepositoryProvider)),
+);
+
+final setRepresentativeSentenceUseCaseProvider =
+    Provider<SetRepresentativeSentenceUseCase>(
+  (ref) =>
+      SetRepresentativeSentenceUseCase(ref.read(sentenceRepositoryProvider)),
 );

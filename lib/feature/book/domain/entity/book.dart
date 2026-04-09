@@ -27,7 +27,6 @@ extension ReadingStatusX on ReadingStatus {
 }
 
 class Book {
-  // final int? id;
   final String id;
   final String title;
   final String? author;
@@ -46,7 +45,6 @@ class Book {
   final String? representativeSentence;
 
   const Book({
-    // this.id,
     required this.id,
     required this.title,
     this.author,
@@ -66,20 +64,43 @@ class Book {
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
-    debugPrint('Book.fromJson >>> ${json}' );
+    debugPrint('Book.fromJson >>> $json');
+
+    final id = json['id']?.toString() ?? '';
+    if (id.isEmpty) {
+      throw Exception('Book id is empty');
+    }
 
     return Book(
-      // id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()),
-      id: json['id'] as String,
-      title: json['title'] as String,
-      author: json['author'] as String?,
-      publisher: json['publisher'] as String?,
-      coverUrl: json['cover_url'] as String?,
-      status: ReadingStatusX.fromApiValue(json['status'] as String? ?? ''),
-      currentPage: json['current_page'] == null ? null : (json['current_page'] is int ? json['current_page'] as int : int.tryParse(json['current_page'].toString())),
-      totalPage: json['total_page'] == null ? null : (json['total_page'] is int ? json['total_page'] as int : int.tryParse(json['total_page'].toString())),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      representativeSentence: json['representative_sentence'] as String?,
+      id: id,
+      title: json['title']?.toString() ?? '제목 없음',
+      author: json['author']?.toString(),
+      publisher: json['publisher']?.toString(),
+      pubDate: json['pub_date']?.toString(),
+      isbn13: json['isbn13']?.toString(),
+      coverUrl: json['cover_url']?.toString(),
+      description: json['description']?.toString(),
+      categoryName: json['category_name']?.toString(),
+      status: ReadingStatusX.fromApiValue(json['status']?.toString() ?? ''),
+      rating: json['rating'] == null
+          ? null
+          : (json['rating'] is int
+          ? json['rating'] as int
+          : int.tryParse(json['rating'].toString())),
+      notes: json['notes']?.toString(),
+      currentPage: json['current_page'] == null
+          ? null
+          : (json['current_page'] is int
+          ? json['current_page'] as int
+          : int.tryParse(json['current_page'].toString())),
+      totalPage: json['total_page'] == null
+          ? null
+          : (json['total_page'] is int
+          ? json['total_page'] as int
+          : int.tryParse(json['total_page'].toString())),
+      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ??
+          DateTime.now(),
+      representativeSentence: json['representative_sentence']?.toString(),
     );
   }
 }

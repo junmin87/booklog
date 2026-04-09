@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/app_colors.dart';
+import '../../../../app/app_text_styles.dart';
 import '../../domain/entity/book.dart';
 import '../../domain/entity/sentence.dart';
 
@@ -15,6 +17,9 @@ class SentenceCardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    debugPrint('SentenceCardPage >>> ');
+    debugPrint('SentenceCardPage >>> ');
     return Scaffold(
       appBar: AppBar(title: const Text('Sentence')),
       body: Center(
@@ -40,13 +45,13 @@ class _SentenceCard extends StatelessWidget {
         margin: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.black87,
+          color: AppColors.overlayBlack87,
           image: book.coverUrl != null
               ? DecorationImage(
                   image: NetworkImage(book.coverUrl!),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
-                    Colors.black.withValues(alpha: 0.6),
+                    AppColors.black.withValues(alpha: 0.6),
                     BlendMode.darken,
                   ),
                 )
@@ -60,26 +65,18 @@ class _SentenceCard extends StatelessWidget {
             children: [
               Text(
                 sentence.content,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                  height: 1.6,
-                ),
+                style: AppTextStyles.sentenceCardContent,
               ),
               const SizedBox(height: 16),
               Text(
                 '— ${book.title}',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 13,
-                ),
+                style: AppTextStyles.sentenceCardAttribution,
               ),
               if (sentence.pageNumber != null)
                 Text(
                   'p. ${sentence.pageNumber}',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppColors.white.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                 ),

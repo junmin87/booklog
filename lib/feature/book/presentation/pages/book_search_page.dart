@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/app_colors.dart';
 import '../../domain/entity/book_search_result.dart';
 import '../provider/book_search_provider.dart';
 
@@ -31,7 +32,7 @@ class BookSearchPage extends ConsumerWidget {
 
     if (state.error != null) {
       return Center(
-        child: Text(state.error!, style: const TextStyle(color: Colors.red)),
+        child: Text(state.error!, style: const TextStyle(color: AppColors.errorRed)),
       );
     }
 
@@ -48,7 +49,7 @@ class BookSearchPage extends ConsumerWidget {
         if (state.isAdding)
           const Positioned.fill(
             child: ColoredBox(
-              color: Colors.black26,
+              color: AppColors.overlayLoading,
               child: Center(child: CircularProgressIndicator()),
             ),
           ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../app/app_colors.dart';
+import '../../../../app/app_text_styles.dart';
 import '../../domain/entity/book.dart';
 import '../provider/book_provider.dart';
 import 'book_detail_page.dart';
@@ -15,24 +16,16 @@ class BooksPage extends ConsumerWidget {
     final asyncBooks = ref.watch(bookNotifierProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0E0C),
+      backgroundColor: AppColors.darkBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F0E0C),
+        backgroundColor: AppColors.darkBg,
         elevation: 0,
         centerTitle: false,
-        title: Text(
-          'My Books',
-          style: GoogleFonts.playfairDisplay(
-            color: const Color(0xFFF7F3EE),
-            fontSize: 28,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.5,
-          ),
-        ),
+        title: Text('My Books', style: AppTextStyles.playfairPageTitle),
       ),
       body: asyncBooks.when(
         loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFFC2773A)),
+          child: CircularProgressIndicator(color: AppColors.accent),
         ),
         error: (e, _) => Center(child: Text(e.toString())),
         data: (books) {
@@ -41,20 +34,18 @@ class BooksPage extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.menu_book_rounded,
-                      size: 56, color: const Color(0xFF78716C)),
-                  const SizedBox(height: 16),
-                  Text(
-                    '아직 등록된 책이 없어요',
-                    style: GoogleFonts.notoSerifKr(
-                      color: const Color(0xFF78716C),
-                      fontSize: 15,
-                    ),
+                  const Icon(
+                    Icons.menu_book_rounded,
+                    size: 56,
+                    color: AppColors.muted,
                   ),
+                  const SizedBox(height: 16),
+                  Text('아직 등록된 책이 없어요', style: AppTextStyles.notoMuted),
                 ],
               ),
             );
           }
+
           return ListView.builder(
             padding: const EdgeInsets.fromLTRB(0, 8, 0, 100),
             itemCount: books.length,
@@ -66,8 +57,8 @@ class BooksPage extends ConsumerWidget {
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const BookSearchPage()),
         ),
-        backgroundColor: const Color(0xFFC2773A),
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: AppColors.accent,
+        child: const Icon(Icons.add, color: AppColors.white),
       ),
     );
   }
@@ -81,7 +72,7 @@ class _BookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasSentence = book.representativeSentence != null &&
-        book.representativeSentence!.isNotEmpty;
+        book.representativeSentence!.trim().isNotEmpty;
 
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
@@ -96,152 +87,149 @@ class _BookCard extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // 책 표지
                 _CoverLayer(coverUrl: book.coverUrl),
 
-                // 전체 오버레이 — 진하게
+                // 기존 전체 오버레이보다 조금 더 진하게 조정해서 전체적인 가독성 강화
                 Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0x55000000),
-                        Color(0x22000000),
-                        Color(0xCC000000),
+                        AppColors.overlayMid,
+                        AppColors.overlayFaint,
+                        AppColors.overlayStrong,
                       ],
-                      stops: [0.0, 0.4, 1.0],
+                      stops: [0.0, 0.42, 1.0],
                     ),
                   ),
                 ),
 
-                // 하단 강한 딤
+                // 하단 딤도 조금 강화
                 const Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        stops: [0.3, 1.0],
+                        stops: [0.22, 1.0],
                         colors: [
                           Colors.transparent,
-                          Color(0xF0000000),
+                          AppColors.overlayHeavy,
                         ],
                       ),
                     ),
                   ),
                 ),
 
-                // 좌상단 — 얇은 액센트 라인
-                Positioned(
-                  top: 24,
-                  left: 24,
-                  child: Container(
-                    width: 32,
-                    height: 2,
-                    color: const Color(0xFFC2773A),
-                  ),
-                ),
-
-                // 중앙 문장
+                // 중앙 문장 / 문장 없음 UI
                 Positioned.fill(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (hasSentence) ...[
-                          Text(
-                            '\u201c',
-                            style: GoogleFonts.playfairDisplay(
-                              color: const Color(0xFFC2773A),
-                              fontSize: 64,
-                              height: 0.8,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            book.representativeSentence!,
-                            style: GoogleFonts.notoSerifKr(
-                              color: const Color(0xFFF7F3EE),
-                              fontSize: 18,
-                              height: 1.85,
-                              fontWeight: FontWeight.w300,
-                              letterSpacing: 0.2,
-                            ),
-                            maxLines: 5,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ] else ...[
-                          // 문장 없을 때 — 배경 박스로 강조
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
+                              horizontal: 16,
+                              vertical: 18,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFC2773A).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
+                              color: AppColors.black.withValues(alpha: 0.34),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 3,
+                                  height: 92,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accent,
+                                    borderRadius: BorderRadius.circular(99),
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      RichText(
+                                        maxLines: 4,
+                                        overflow: TextOverflow.ellipsis,
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: '\u201c',
+                                              style: AppTextStyles.notoCardQuoteMark,
+                                            ),
+                                            TextSpan(
+                                              text: book.representativeSentence!.trim(),
+                                              style: AppTextStyles.notoCardQuoteText,
+                                            ),
+                                            TextSpan(
+                                              text: '\u201d',
+                                              style: AppTextStyles.notoCardQuoteMark,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 12),
+
+                                      Text(
+                                        '— ${book.title}',
+                                        style: AppTextStyles.notoAttributionSubtle,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ] else ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 18,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.darkOverlayCard,
+                              borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: const Color(0xFFC2773A).withValues(alpha: 0.4),
-                                width: 0.5,
+                                color: AppColors.accent,
+                                width: 1.1,
                               ),
                             ),
-                            child: Text(
-                              '첫 문장을 기록해보세요',
-                              style: GoogleFonts.notoSerifKr(
-                                color: const Color(0xFFC2773A),
-                                fontSize: 14,
-                                fontStyle: FontStyle.italic,
-                                fontWeight: FontWeight.w300,
-                              ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 4,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accent,
+                                    borderRadius: BorderRadius.circular(99),
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Text(
+                                    '첫 문장을 기록해보세요',
+                                    style: AppTextStyles.notoCardCta,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ],
                     ),
-                  ),
-                ),
-
-                // 하단 책 정보
-                Positioned(
-                  left: 28,
-                  right: 28,
-                  bottom: 28,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 0.5,
-                        color: const Color(0x80FFFFFF),
-                        margin: const EdgeInsets.only(bottom: 12),
-                      ),
-                      Text(
-                        book.title,
-                        style: GoogleFonts.playfairDisplay(
-                          color: const Color(0xCCFFFFFF),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (book.author != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          book.author!,
-                          style: GoogleFonts.notoSerifKr(
-                            color: const Color(0x80FFFFFF),
-                            fontSize: 11,
-                            letterSpacing: 0.3,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
                   ),
                 ),
               ],
@@ -277,22 +265,18 @@ class _CoverFallback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF1C1917),
+      color: AppColors.ink,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.menu_book_rounded,
-                size: 48, color: const Color(0xFF78716C)),
-            const SizedBox(height: 8),
-            Text(
-              'No Cover',
-              style: GoogleFonts.playfairDisplay(
-                color: const Color(0xFF78716C),
-                fontSize: 12,
-                letterSpacing: 1.5,
-              ),
+            const Icon(
+              Icons.menu_book_rounded,
+              size: 48,
+              color: AppColors.muted,
             ),
+            const SizedBox(height: 8),
+            Text('No Cover', style: AppTextStyles.playfairFallback),
           ],
         ),
       ),
