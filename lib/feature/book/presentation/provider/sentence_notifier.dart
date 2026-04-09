@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/di.dart';
 import '../../domain/entity/sentence.dart';
+import 'book_provider.dart';
 
 class SentenceNotifier extends FamilyAsyncNotifier<List<Sentence>, String> {
   @override
@@ -18,6 +19,14 @@ class SentenceNotifier extends FamilyAsyncNotifier<List<Sentence>, String> {
         .read(addSentenceUseCaseProvider)
         .execute(bookId, content, pageNumber: pageNumber);
     ref.invalidateSelf();
+  }
+
+  Future<void> setRepresentative(String bookId, String sentenceId) async {
+    await ref
+        .read(setRepresentativeSentenceUseCaseProvider)
+        .execute(bookId, sentenceId);
+    ref.invalidateSelf();
+    ref.invalidate(bookNotifierProvider);
   }
 }
 
