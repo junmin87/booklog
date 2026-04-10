@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
@@ -31,9 +32,11 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
   Future<void> _save() async {
     final content = _contentController.text.trim();
 
+    final l10n = AppLocalizations.of(context)!;
+
     // ✅ 문장 필수 입력
     if (content.isEmpty) {
-      setState(() => _error = '문장을 입력해주세요');
+      setState(() => _error = l10n.sentenceRequired);
       return;
     }
 
@@ -42,7 +45,7 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
 
     // 숫자 아닌 경우 차단
     if (pageText.isNotEmpty && int.tryParse(pageText) == null) {
-      setState(() => _error = '페이지는 숫자로 입력해주세요');
+      setState(() => _error = l10n.pageNumberOnly);
       return;
     }
 
@@ -83,7 +86,7 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          '문장 남기기',
+          AppLocalizations.of(context)!.saveSentenceTitle,
           style: AppTextStyles.playfairAppBarTitle,
         ),
       ),
@@ -93,20 +96,20 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _DarkLabel(label: '문장'),
+              _DarkLabel(label: AppLocalizations.of(context)!.sentenceLabel),
               const SizedBox(height: 8),
               _DarkTextField(
                 controller: _contentController,
-                hintText: '기억하고 싶은 문장을 입력하세요',
+                hintText: AppLocalizations.of(context)!.sentenceHint,
                 maxLines: 6,
                 keyboardType: TextInputType.multiline,
               ),
               const SizedBox(height: 20),
-              _DarkLabel(label: '페이지 번호 (선택)'),
+              _DarkLabel(label: AppLocalizations.of(context)!.pageNumberLabel),
               const SizedBox(height: 8),
               _DarkTextField(
                 controller: _pageController,
-                hintText: '예: 142',
+                hintText: AppLocalizations.of(context)!.pageNumberHint,
                 maxLines: 1,
                 keyboardType: TextInputType.number,
               ),
@@ -134,7 +137,7 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
                           color: AppColors.white,
                         ),
                       )
-                    : Text('저장하기', style: AppTextStyles.notoSaveButton),
+                    : Text(AppLocalizations.of(context)!.save, style: AppTextStyles.notoSaveButton),
               ),
             ],
           ),

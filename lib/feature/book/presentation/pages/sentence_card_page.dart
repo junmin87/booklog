@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
@@ -21,7 +22,7 @@ class SentenceCardPage extends StatelessWidget {
     debugPrint('SentenceCardPage >>> ');
     debugPrint('SentenceCardPage >>> ');
     return Scaffold(
-      appBar: AppBar(title: const Text('Sentence')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.sentenceAppBarTitle)),
       body: Center(
         child: RepaintBoundary(
           child: _SentenceCard(sentence: sentence, book: book),

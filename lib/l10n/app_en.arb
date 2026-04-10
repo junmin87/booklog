@@ -1,0 +1,188 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Book Log",
+  "@appTitle": { "description": "Application title" },
+
+  "loginSubtitle": "Track your reading journey",
+  "@loginSubtitle": { "description": "Subtitle shown on the login screen" },
+
+  "selectRegion": "Select your region",
+  "@selectRegion": { "description": "Title on the country selection screen" },
+
+  "countryKorea": "한국",
+  "@countryKorea": { "description": "Korea option on the country selection screen" },
+
+  "countryOther": "Other",
+  "@countryOther": { "description": "Other country option on the country selection screen" },
+
+  "navBooks": "Books",
+  "@navBooks": { "description": "Bottom nav label for books tab" },
+
+  "navSettings": "Settings",
+  "@navSettings": { "description": "Bottom nav label for settings tab" },
+
+  "myBooks": "My Books",
+  "@myBooks": { "description": "Title on the books list page" },
+
+  "noBooksYet": "No books registered yet",
+  "@noBooksYet": { "description": "Empty state message on books page" },
+
+  "recordFirstSentence": "Record your first sentence",
+  "@recordFirstSentence": { "description": "CTA on a book card with no sentences" },
+
+  "noCover": "No Cover",
+  "@noCover": { "description": "Fallback text when a book cover image is missing" },
+
+  "savedSentences": "Saved Sentences",
+  "@savedSentences": { "description": "Section header on book detail page" },
+
+  "noSentencesHint": "Save a sentence you want to remember from this book",
+  "@noSentencesHint": { "description": "Section subtitle when no sentences exist" },
+
+  "sentencesWithRepresentative": "{count} sentences, one selected as representative",
+  "@sentencesWithRepresentative": {
+    "description": "Section subtitle when sentences exist and one is representative",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "sentencesChooseRepresentative": "{count} sentences · Choose a representative sentence",
+  "@sentencesChooseRepresentative": {
+    "description": "Section subtitle when sentences exist but none is representative",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "setRepresentativeTitle": "Set as representative sentence?",
+  "@setRepresentativeTitle": { "description": "Dialog title for setting representative sentence" },
+
+  "setRepresentativeContent": "This sentence will be marked as the representative sentence for this book.",
+  "@setRepresentativeContent": { "description": "Dialog body for setting representative sentence" },
+
+  "cancel": "Cancel",
+  "@cancel": { "description": "Cancel button label" },
+
+  "setConfirm": "Set",
+  "@setConfirm": { "description": "Confirm button label for setting representative sentence" },
+
+  "representativeSetSuccess": "Set as representative sentence",
+  "@representativeSetSuccess": { "description": "Snackbar on success setting representative sentence" },
+
+  "representativeSetFailed": "Failed to set representative sentence",
+  "@representativeSetFailed": { "description": "Snackbar on failure setting representative sentence" },
+
+  "noSentencesChip": "No recorded sentences",
+  "@noSentencesChip": { "description": "Chip label when no sentences are recorded" },
+
+  "sentenceCountChip": "{count} sentences",
+  "@sentenceCountChip": {
+    "description": "Chip label showing sentence count",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "representativeLine": "Representative Line",
+  "@representativeLine": { "description": "Label above the representative sentence in book detail" },
+
+  "noRepresentativeYet": "No representative sentence yet",
+  "@noRepresentativeYet": { "description": "Placeholder when no representative sentence is set" },
+
+  "recentSentenceTitle": "Recently saved sentence",
+  "@recentSentenceTitle": { "description": "Title of the recent sentence card" },
+
+  "noSentencesYet": "No saved sentences yet",
+  "@noSentencesYet": { "description": "Empty state title in book detail" },
+
+  "noSentencesSubtitle": "Save a sentence you want to remember from this book.",
+  "@noSentencesSubtitle": { "description": "Empty state subtitle in book detail" },
+
+  "saveFirstSentence": "Save first sentence",
+  "@saveFirstSentence": { "description": "Button label to add the first sentence" },
+
+  "representativeChip": "Representative",
+  "@representativeChip": { "description": "Chip/button label indicating a representative sentence" },
+
+  "setAsRepresentative": "Set as representative",
+  "@setAsRepresentative": { "description": "Button label to set a sentence as representative" },
+
+  "searchForBook": "Search for a book by title or author",
+  "@searchForBook": { "description": "Empty search state message on book search page" },
+
+  "searchFieldHint": "Title or author...",
+  "@searchFieldHint": { "description": "Search field hint text" },
+
+  "bookAdded": "\"{title}\" added",
+  "@bookAdded": {
+    "description": "Snackbar message when a book is successfully added",
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+
+  "failedToAddBook": "Failed to add book",
+  "@failedToAddBook": { "description": "Snackbar message when adding a book fails" },
+
+  "sentenceRequired": "Please enter a sentence",
+  "@sentenceRequired": { "description": "Validation error when sentence field is empty" },
+
+  "pageNumberOnly": "Enter page number as a number",
+  "@pageNumberOnly": { "description": "Validation error when page number is not numeric" },
+
+  "saveSentenceTitle": "Save sentence",
+  "@saveSentenceTitle": { "description": "AppBar title on sentence input page" },
+
+  "sentenceLabel": "Sentence",
+  "@sentenceLabel": { "description": "Form field label for sentence" },
+
+  "sentenceHint": "Enter a sentence you want to remember",
+  "@sentenceHint": { "description": "Hint text for sentence text field" },
+
+  "pageNumberLabel": "Page number (optional)",
+  "@pageNumberLabel": { "description": "Form field label for page number" },
+
+  "pageNumberHint": "Ex: 142",
+  "@pageNumberHint": { "description": "Hint text for page number field" },
+
+  "save": "Save",
+  "@save": { "description": "Save button label" },
+
+  "sentenceAppBarTitle": "Sentence",
+  "@sentenceAppBarTitle": { "description": "AppBar title on sentence card page" },
+
+  "settings": "Settings",
+  "@settings": { "description": "Title on the settings page" },
+
+  "account": "Account",
+  "@account": { "description": "Section header for account info in settings" },
+
+  "emailLabel": "Email",
+  "@emailLabel": { "description": "Email label in settings" },
+
+  "countryLabel": "Country",
+  "@countryLabel": { "description": "Country label in settings" },
+
+  "logout": "Logout",
+  "@logout": { "description": "Logout button label" },
+
+  "deleteAccount": "Delete account",
+  "@deleteAccount": { "description": "Delete account button label and dialog title" },
+
+  "deleteAccountConfirm": "Are you sure you want to withdraw?\nAll data related to your account will be deleted.",
+  "@deleteAccountConfirm": { "description": "Delete account confirmation dialog message" },
+
+  "withdraw": "Withdraw",
+  "@withdraw": { "description": "Confirm withdrawal button label" },
+
+  "languageLabel": "Language",
+  "@languageLabel": { "description": "Language label in settings" },
+
+  "languageKorean": "Korean",
+  "@languageKorean": { "description": "Korean language option" },
+
+  "languageEnglish": "English",
+  "@languageEnglish": { "description": "English language option" }
+}

@@ -6,12 +6,15 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 
 import 'app/shell_page.dart';
 import 'app/theme.dart';
 import 'feature/auth/presentation/pages/country_select.dart';
 import 'feature/auth/presentation/pages/login_page.dart';
+import 'feature/auth/presentation/provider/auth_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,14 +48,28 @@ Future<void> main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authAsync = ref.watch(authNotifierProvider);
+    final languageCode = authAsync.valueOrNull?.languageCode;
+
     return MaterialApp(
       title: 'Book Log',
       theme: AppTheme.light,
+      locale: languageCode != null ? Locale(languageCode) : null,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ko'),
+      ],
       // 🔥 핵심: home 제거하고 initialRoute 사용
       initialRoute: '/',
       routes: {

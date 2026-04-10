@@ -8,17 +8,19 @@ import '../../domain/entity/auth_user.dart';
 class AuthNotifierState {
   final AuthUser? user;
   final String? countryCode;
+  final String? languageCode;
   final String? error;
 
-  const AuthNotifierState({this.user, this.countryCode, this.error});
+  const AuthNotifierState({this.user, this.countryCode, this.languageCode, this.error});
 
   bool get isLoggedIn => user != null;
   bool get isCountrySelected => countryCode != null;
 
-  AuthNotifierState copyWith({AuthUser? user, String? countryCode, String? error}) {
+  AuthNotifierState copyWith({AuthUser? user, String? countryCode, String? languageCode, String? error}) {
     return AuthNotifierState(
       user: user ?? this.user,
       countryCode: countryCode ?? this.countryCode,
+      languageCode: languageCode ?? this.languageCode,
       error: error ?? this.error,
     );
   }
@@ -37,7 +39,7 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
     if (isValid) {
       final user = await repo.getMe(token);
       debugPrint('User : ${user.toString()}');
-      return AuthNotifierState(user: user, countryCode: user?.countryCode);
+      return AuthNotifierState(user: user, countryCode: user?.countryCode, languageCode: user?.languageCode);
     } else {
       await repo.deleteToken();
       return const AuthNotifierState();
@@ -103,7 +105,7 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
       await repo.saveCountry(countryCode, languageCode);
       // Migration: copyWith + AsyncValue.data replaces field mutation + notifyListeners()
       final current = state.value ?? const AuthNotifierState();
-      state = AsyncValue.data(current.copyWith(countryCode: countryCode));
+      state = AsyncValue.data(current.copyWith(countryCode: countryCode, languageCode: languageCode));
     } catch (e) {
       debugPrint('국가 저장 오류: $e');
     }

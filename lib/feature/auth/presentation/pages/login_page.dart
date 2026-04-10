@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -29,6 +30,7 @@ class LoginPage extends ConsumerWidget {
       });
     });
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -38,14 +40,14 @@ class LoginPage extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Book Log',
-                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.appTitle,
+                  style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Track your reading journey',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                Text(
+                  l10n.loginSubtitle,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 72),
                 if (isLoading)

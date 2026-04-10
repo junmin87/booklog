@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
@@ -52,6 +53,7 @@ class BookDetailPage extends ConsumerWidget {
           final hasRepresentative = book.representativeSentence != null &&
               book.representativeSentence!.trim().isNotEmpty;
           final recentSentence = sentences.isNotEmpty ? sentences.first : null;
+          final l10n = AppLocalizations.of(context)!;
 
           return CustomScrollView(
             slivers: [
@@ -84,12 +86,12 @@ class BookDetailPage extends ConsumerWidget {
 
               SliverToBoxAdapter(
                 child: _SectionHeader(
-                  title: 'Saved Sentences',
+                  title: l10n.savedSentences,
                   subtitle: sentences.isEmpty
-                      ? '이 책에서 기억하고 싶은 문장을 남겨보세요'
+                      ? l10n.noSentencesHint
                       : hasRepresentative
-                      ? '${sentences.length}개의 문장 중 하나가 대표문장으로 선택되어 있어요'
-                      : '${sentences.length}개의 문장이 있어요 · 대표문장을 골라보세요',
+                      ? l10n.sentencesWithRepresentative(sentences.length)
+                      : l10n.sentencesChooseRepresentative(sentences.length),
                 ),
               ),
 
@@ -178,24 +180,25 @@ class BookDetailPage extends ConsumerWidget {
     required String bookId,
     required String sentenceId,
   }) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.darkCard,
-          title: Text('대표문장으로 설정할까요?', style: AppTextStyles.notoDialogTitle),
+          title: Text(l10n.setRepresentativeTitle, style: AppTextStyles.notoDialogTitle),
           content: Text(
-            '이 문장이 이 책을 대표하는 한 문장으로 표시돼요.',
+            l10n.setRepresentativeContent,
             style: AppTextStyles.notoDialogBody,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: Text('취소', style: AppTextStyles.notoDialogCancel),
+              child: Text(l10n.cancel, style: AppTextStyles.notoDialogCancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: Text('설정', style: AppTextStyles.notoDialogConfirm),
+              child: Text(l10n.setConfirm, style: AppTextStyles.notoDialogConfirm),
             ),
           ],
         );
@@ -212,7 +215,7 @@ class BookDetailPage extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('대표문장으로 설정했어요', style: AppTextStyles.notoBase),
+            content: Text(l10n.representativeSetSuccess, style: AppTextStyles.notoBase),
             backgroundColor: AppColors.successSnackBarBg,
           ),
         );
@@ -221,7 +224,7 @@ class BookDetailPage extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('대표문장 설정에 실패했어요', style: AppTextStyles.notoBase),
+            content: Text(l10n.representativeSetFailed, style: AppTextStyles.notoBase),
             backgroundColor: AppColors.errorSnackBarBg,
           ),
         );
@@ -280,8 +283,8 @@ class _BookHeroSection extends StatelessWidget {
                           const SizedBox(height: 12),
                           _MetaChip(
                             label: sentenceCount == 0
-                                ? '기록된 문장 없음'
-                                : '문장 $sentenceCount개',
+                                ? AppLocalizations.of(context)!.noSentencesChip
+                                : AppLocalizations.of(context)!.sentenceCountChip(sentenceCount),
                           ),
                         ],
                       ),
@@ -292,7 +295,7 @@ class _BookHeroSection extends StatelessWidget {
               const SizedBox(height: 22),
               if (hasRepresentative) ...[
                 Text(
-                  'Representative Line',
+                  AppLocalizations.of(context)!.representativeLine,
                   style: AppTextStyles.playfairAccentSmall.copyWith(
                     letterSpacing: 0.4,
                   ),
@@ -328,7 +331,7 @@ class _BookHeroSection extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    '아직 대표문장이 없어요',
+                    AppLocalizations.of(context)!.noRepresentativeYet,
                     style: AppTextStyles.notoNoRepresentative,
                   ),
                 ),
@@ -370,7 +373,7 @@ class _RecentSentenceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('최근 남긴 문장', style: AppTextStyles.playfairAccentLabel),
+                Text(AppLocalizations.of(context)!.recentSentenceTitle, style: AppTextStyles.playfairAccentLabel),
                 const SizedBox(height: 8),
                 Text(
                   sentence.content,
@@ -442,13 +445,13 @@ class _EmptySentenceView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '아직 남겨둔 문장이 없어요',
+                  AppLocalizations.of(context)!.noSentencesYet,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.notoEmptyTitle,
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  '이 책에서 기억하고 싶은 문장을 남겨보세요.',
+                  AppLocalizations.of(context)!.noSentencesSubtitle,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.notoEmptySubtitle,
                 ),
@@ -469,7 +472,7 @@ class _EmptySentenceView extends StatelessWidget {
                     ),
                   ),
                   icon: const Icon(Icons.add, size: 18),
-                  label: Text('첫 문장 남기기', style: AppTextStyles.notoButtonLabel),
+                  label: Text(AppLocalizations.of(context)!.saveFirstSentence, style: AppTextStyles.notoButtonLabel),
                 ),
               ],
             ),
@@ -532,7 +535,7 @@ class _SentenceListCard extends StatelessWidget {
                           color: AppColors.accent.withValues(alpha: 0.14),
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: Text('대표 문장', style: AppTextStyles.notoChipAccent),
+                        child: Text(AppLocalizations.of(context)!.representativeChip, style: AppTextStyles.notoChipAccent),
                       ),
                     ],
                   ),
@@ -560,7 +563,9 @@ class _SentenceListCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                       ),
                       child: Text(
-                        isRepresentative ? '대표 문장' : '대표로 설정',
+                        isRepresentative
+                            ? AppLocalizations.of(context)!.representativeChip
+                            : AppLocalizations.of(context)!.setAsRepresentative,
                         style: AppTextStyles.notoButtonSmall,
                       ),
                     ),

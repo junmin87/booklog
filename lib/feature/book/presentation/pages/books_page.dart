@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
@@ -15,13 +16,14 @@ class BooksPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncBooks = ref.watch(bookNotifierProvider);
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.darkBg,
       appBar: AppBar(
         backgroundColor: AppColors.darkBg,
         elevation: 0,
         centerTitle: false,
-        title: Text('My Books', style: AppTextStyles.playfairPageTitle),
+        title: Text(l10n.myBooks, style: AppTextStyles.playfairPageTitle),
       ),
       body: asyncBooks.when(
         loading: () => const Center(
@@ -40,7 +42,7 @@ class BooksPage extends ConsumerWidget {
                     color: AppColors.muted,
                   ),
                   const SizedBox(height: 16),
-                  Text('아직 등록된 책이 없어요', style: AppTextStyles.notoMuted),
+                  Text(l10n.noBooksYet, style: AppTextStyles.notoMuted),
                 ],
               ),
             );
@@ -220,7 +222,7 @@ class _BookCard extends StatelessWidget {
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Text(
-                                    '첫 문장을 기록해보세요',
+                                    AppLocalizations.of(context)!.recordFirstSentence,
                                     style: AppTextStyles.notoCardCta,
                                   ),
                                 ),
@@ -276,7 +278,7 @@ class _CoverFallback extends StatelessWidget {
               color: AppColors.muted,
             ),
             const SizedBox(height: 8),
-            Text('No Cover', style: AppTextStyles.playfairFallback),
+            Text(AppLocalizations.of(context)!.noCover, style: AppTextStyles.playfairFallback),
           ],
         ),
       ),

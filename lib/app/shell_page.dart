@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 
 import 'app_colors.dart';
 import '../feature/book/presentation/pages/books_page.dart';
@@ -45,11 +46,13 @@ class _ShellPageState extends State<ShellPage> {
         showUnselectedLabels: true,
         currentIndex: _index,
         onTap: (i) => setState(() => _index = i),
-        items: const [
+        items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book), label: 'Books'),
+              icon: const Icon(Icons.menu_book),
+              label: AppLocalizations.of(context)!.navBooks),
           BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
+              icon: const Icon(Icons.settings),
+              label: AppLocalizations.of(context)!.navSettings),
         ],
       ),
     );

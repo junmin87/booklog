@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
@@ -37,7 +38,7 @@ class BookSearchPage extends ConsumerWidget {
     }
 
     if (state.results.isEmpty) {
-      return const Center(child: Text('Search for a book by title or author'));
+      return Center(child: Text(AppLocalizations.of(context)!.searchForBook));
     }
 
     return Stack(
@@ -80,8 +81,8 @@ class _SearchFieldState extends State<_SearchField> {
     return TextField(
       controller: _controller,
       autofocus: true,
-      decoration: const InputDecoration(
-        hintText: 'Title or author...',
+      decoration: InputDecoration(
+        hintText: AppLocalizations.of(context)!.searchFieldHint,
         border: InputBorder.none,
       ),
       textInputAction: TextInputAction.search,
@@ -119,15 +120,16 @@ class _BookTile extends ConsumerWidget {
         await ref.read(bookSearchNotifierProvider.notifier).addBook(result);
     if (!context.mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('"${result.title}" added')),
+        SnackBar(content: Text(l10n.bookAdded(result.title))),
       );
       Navigator.of(context).pop();
     } else {
       final error = ref.read(bookSearchNotifierProvider).value?.error;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error ?? 'Failed to add book')),
+        SnackBar(content: Text(error ?? l10n.failedToAddBook)),
       );
     }
   }

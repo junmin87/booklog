@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:book_log/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../provider/auth_provider.dart';
@@ -9,6 +12,7 @@ class CountrySelectPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -17,21 +21,21 @@ class CountrySelectPage extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Select your region',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                l10n.selectRegion,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 48),
               _CountryButton(
                 flag: '🇰🇷',
-                label: '한국',
-                onTap: () => _onSelect(context, ref, 'KR', 'ko'),
+                label: l10n.countryKorea,
+                onTap: () => _onSelect(context, ref, 'KR'),
               ),
               const SizedBox(height: 16),
               _CountryButton(
                 flag: '🌍',
-                label: 'Other',
-                onTap: () => _onSelect(context, ref, 'US', 'en'),
+                label: l10n.countryOther,
+                onTap: () => _onSelect(context, ref, 'US'),
               ),
             ],
           ),
@@ -40,8 +44,9 @@ class CountrySelectPage extends ConsumerWidget {
     );
   }
 
-  void _onSelect(
-      BuildContext context, WidgetRef ref, String countryCode, String languageCode) async {
+  void _onSelect(BuildContext context, WidgetRef ref, String countryCode) async {
+    final deviceLang = ui.PlatformDispatcher.instance.locale.languageCode;
+    final languageCode = deviceLang == 'ko' ? 'ko' : 'en';
     // Migration: ref.read replaces context.read
     await ref.read(authNotifierProvider.notifier).saveCountry(countryCode, languageCode);
     if (context.mounted) {
