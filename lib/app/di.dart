@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/network/api_client.dart';
 import '../feature/auth/data/auth_repository.dart';
 import '../feature/book/data/book_repository_impl.dart';
 import '../feature/book/data/sentence_repository_impl.dart';
@@ -11,14 +12,20 @@ import '../feature/book/domain/usecase/get_books_use_case.dart';
 import '../feature/book/domain/usecase/get_sentences_use_case.dart';
 import '../feature/book/domain/usecase/set_representative_sentence_use_case.dart';
 
+
+final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
+
+
 final authRepositoryProvider =
     Provider<AuthRepository>((ref) => AuthRepository());
 
-final bookRepositoryProvider =
-    Provider<BookRepository>((ref) => BookRepositoryImpl());
+final bookRepositoryProvider = Provider<BookRepository>(
+  (ref) => BookRepositoryImpl(apiClient: ref.read(apiClientProvider)),
+);
 
-final sentenceRepositoryProvider =
-    Provider<SentenceRepository>((ref) => SentenceRepositoryImpl());
+final sentenceRepositoryProvider = Provider<SentenceRepository>(
+  (ref) => SentenceRepositoryImpl(apiClient: ref.read(apiClientProvider)),
+);
 
 final addBookUseCaseProvider = Provider<AddBookUseCase>(
   (ref) => AddBookUseCase(ref.read(bookRepositoryProvider)),
