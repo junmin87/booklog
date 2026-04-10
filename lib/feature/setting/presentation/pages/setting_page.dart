@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:book_log/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
@@ -90,6 +91,32 @@ class SettingPage extends ConsumerWidget {
                       ],
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Share app card
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.darkCard,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.onDarkHint.withValues(alpha: 0.3)),
+                ),
+                child: ListTile(
+                  leading: Icon(Icons.share_outlined, size: 18, color: AppColors.onDarkMuted),
+                  title: Text(
+                    'Share App',
+                    style: AppTextStyles.notoBodySecondary.copyWith(color: AppColors.onDark),
+                  ),
+                  trailing: Icon(Icons.chevron_right, size: 18, color: AppColors.onDarkHint),
+                  onTap: () {
+                    final box = context.findRenderObject() as RenderBox?;
+                    Share.share(
+                      'Check out Book Log! https://booklog.app (coming soon)',
+                      sharePositionOrigin: box != null
+                          ? box.localToGlobal(Offset.zero) & box.size
+                          : null,
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 32),

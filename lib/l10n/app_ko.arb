@@ -56,5 +56,7 @@
 
   "languageLabel": "언어",
   "languageKorean": "한국어",
-  "languageEnglish": "English"
+  "languageEnglish": "English",
+  "bestseller": "베스트셀러",
+  "addFirstBook": "+ 첫 번째 책 추가하기"
 }

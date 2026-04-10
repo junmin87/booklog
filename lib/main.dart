@@ -12,9 +12,13 @@ import 'package:book_log/l10n/app_localizations.dart';
 
 import 'app/shell_page.dart';
 import 'app/theme.dart';
+import 'core/service/update_check_service.dart';
+import 'core/widgets/update_dialog.dart';
 import 'feature/auth/presentation/pages/country_select.dart';
 import 'feature/auth/presentation/pages/login_page.dart';
 import 'feature/auth/presentation/provider/auth_provider.dart';
+
+final _navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +50,24 @@ Future<void> main() async {
 
   // Migration: ProviderScope replaces MultiProvider; all providers are now declared globally at file level
   runApp(const ProviderScope(child: MyApp()));
+
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final required = await UpdateCheckService().isUpdateRequired();
+    if (!required) return;
+    final ctx = _navigatorKey.currentContext;
+    if (ctx == null || !ctx.mounted) return;
+    showDialog(
+      context: ctx,
+      barrierDismissible: false,
+      builder: (_) => const UpdateDialog(
+        title: 'Update Available',
+        message: 'A new version of Book Log is available. Please update to continue.',
+        updateLabel: 'Update',
+        laterLabel: 'Later',
+        updateUrl: 'https://apps.apple.com/app/id000000000',
+      ),
+    );
+  });
 }
 
 class MyApp extends ConsumerWidget {
@@ -57,6 +79,7 @@ class MyApp extends ConsumerWidget {
     final languageCode = authAsync.valueOrNull?.languageCode;
 
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Book Log',
       theme: AppTheme.light,
       locale: languageCode != null ? Locale(languageCode) : null,

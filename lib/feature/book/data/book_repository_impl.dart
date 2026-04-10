@@ -29,6 +29,24 @@ class BookRepositoryImpl implements BookRepository {
   }
 
   @override
+  Future<List<BookSearchResult>> getBestsellers() async {
+    try {
+      final data = await _api.get(
+        '/book/bestseller',
+        authenticated: false,
+      );
+      final books = data['books'] as List<dynamic>;
+      return books
+          .map((b) => BookSearchResult.fromJson(b as Map<String, dynamic>))
+          .toList();
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
+  }
+
+  @override
   Future<void> addBook(Book book) async {
     try {
       await _api.post('/book/add', {

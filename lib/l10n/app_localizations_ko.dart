@@ -180,4 +180,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get languageEnglish => 'English';
+
+  @override
+  String get bestseller => '베스트셀러';
+
+  @override
+  String get addFirstBook => '+ 첫 번째 책 추가하기';
 }

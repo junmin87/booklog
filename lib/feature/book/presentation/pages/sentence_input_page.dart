@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
+import '../../../../core/service/review_service.dart';
 import '../../domain/entity/book.dart';
 import '../provider/sentence_notifier.dart';
 
@@ -62,7 +63,10 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
           .read(sentenceNotifierProvider(bookId).notifier)
           .addSentence(bookId, content, pageNumber: pageNumber);
 
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        ReviewService().requestReview();
+        Navigator.of(context).pop();
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {

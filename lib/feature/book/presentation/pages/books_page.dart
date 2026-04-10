@@ -31,6 +31,24 @@ class BooksPage extends ConsumerWidget {
         ),
         error: (e, _) => Center(child: Text(e.toString())),
         data: (books) {
+          // if (books.isEmpty) {
+          //   return Center(
+          //     child: Column(
+          //       mainAxisSize: MainAxisSize.min,
+          //       children: [
+          //         const Icon(
+          //           Icons.menu_book_rounded,
+          //           size: 56,
+          //           color: AppColors.muted,
+          //         ),
+          //         const SizedBox(height: 16),
+          //         Text(l10n.noBooksYet, style: AppTextStyles.notoMuted),
+          //       ],
+          //     ),
+          //   );
+          // }
+
+
           if (books.isEmpty) {
             return Center(
               child: Column(
@@ -43,6 +61,23 @@ class BooksPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(l10n.noBooksYet, style: AppTextStyles.notoMuted),
+                  const SizedBox(height: 24),                          // 추가
+                  OutlinedButton(                                       // 추가
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const BookSearchPage()),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.accent),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      l10n.addFirstBook,
+                      style: const TextStyle(color: AppColors.accent),
+                    ),
+                  ),
                 ],
               ),
             );

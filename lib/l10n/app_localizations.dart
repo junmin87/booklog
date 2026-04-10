@@ -424,6 +424,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'English'**
   String get languageEnglish;
+
+  /// Bestsellers section header on book search page
+  ///
+  /// In en, this message translates to:
+  /// **'Bestsellers'**
+  String get bestseller;
+
+  /// CTA button on empty books page
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add your first book'**
+  String get addFirstBook;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
