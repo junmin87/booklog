@@ -1,3 +1,4 @@
+import '../../../core/error/api_exception.dart';
 import '../../../core/network/api_client.dart';
 import '../domain/entity/sentence.dart';
 import '../domain/repository/sentence_repository.dart';
@@ -10,45 +11,48 @@ class SentenceRepositoryImpl implements SentenceRepository {
   @override
   Future<void> addSentence(String bookId, String content,
       {int? pageNumber}) async {
-    await _api.post(
-      '/books/$bookId/sentences',
-      {
-        'content': content,
-        if (pageNumber != null) 'pageNumber': pageNumber,
-      },
-      successCodes: [200, 201],
-    );
+    try {
+      await _api.post(
+        '/books/$bookId/sentences',
+        {
+          'content': content,
+          if (pageNumber != null) 'pageNumber': pageNumber,
+        },
+        successCodes: [200, 201],
+      );
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
   }
 
   @override
   Future<void> setRepresentative(String bookId, String sentenceId) async {
-    await _api.patch(
-      '/books/$bookId/sentences/$sentenceId/representative',
-      successCodes: [200, 204],
-    );
+    try {
+      await _api.patch(
+        '/books/$bookId/sentences/$sentenceId/representative',
+        successCodes: [200, 204],
+      );
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
   }
-
-  // @override
-  // Future<void> setRepresentative(String bookId, String sentenceId) async {
-  //   final token = await _storage.read(key: _kServerTokenKey);
-  //   if (token == null) throw Exception('Not logged in');
-  //
-  //   final response = await http.patch(
-  //     Uri.parse('$_baseUrl/books/$bookId/sentences/$sentenceId/representative'),
-  //     headers: {'Authorization': 'Bearer $token'},
-  //   );
-  //
-  //   if (response.statusCode != 200 && response.statusCode != 204) {
-  //     throw Exception('Set representative failed: ${response.statusCode}');
-  //   }
-  // }
 
   @override
   Future<List<Sentence>> getSentences(String bookId) async {
-    final data = await _api.get('/books/$bookId/sentences');
-    final sentences = data['sentences'] as List<dynamic>;
-    return sentences
-        .map((s) => Sentence.fromJson(s as Map<String, dynamic>))
-        .toList();
+    try {
+      final data = await _api.get('/books/$bookId/sentences');
+      final sentences = data['sentences'] as List<dynamic>;
+      return sentences
+          .map((s) => Sentence.fromJson(s as Map<String, dynamic>))
+          .toList();
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
   }
 }

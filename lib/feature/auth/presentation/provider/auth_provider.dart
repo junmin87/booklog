@@ -44,21 +44,53 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
     }
   }
 
+  // Future<void> signInWithApple() async {
+  //   // Migration: state = AsyncValue.loading() replaces _setState(AuthState.loading) + notifyListeners()
+  //   state = const AsyncValue.loading();
+  //   try {
+  //     final repo = ref.read(authRepositoryProvider);
+  //     final result = await repo.appleLogin();
+  //     await repo.saveToken(result['token'] as String);
+  //     final token = result['token'] as String;
+  //     final user = await repo.getMe(token);
+  //     state = AsyncValue.data(AuthNotifierState(
+  //       user: user,
+  //       countryCode: result['country_code'] as String?,
+  //     ));
+  //   } catch (e) {
+  //     debugPrint('Apple 로그인 오류: $e');
+  //     state = const AsyncValue.data(
+  //       AuthNotifierState(error: 'Login failed. Please try again.'),
+  //     );
+  //   }
+  // }
+
+
   Future<void> signInWithApple() async {
-    // Migration: state = AsyncValue.loading() replaces _setState(AuthState.loading) + notifyListeners()
     state = const AsyncValue.loading();
     try {
+      debugPrint('🍎 [1] signInWithApple 시작');
       final repo = ref.read(authRepositoryProvider);
+
+      debugPrint('🍎 [2] appleLogin 호출 전');
       final result = await repo.appleLogin();
+      debugPrint('🍎 [3] appleLogin 완료: $result');
+
       await repo.saveToken(result['token'] as String);
+      debugPrint('🍎 [4] 토큰 저장 완료');
+
       final token = result['token'] as String;
       final user = await repo.getMe(token);
+      debugPrint('🍎 [5] getMe 완료: $user');
+
       state = AsyncValue.data(AuthNotifierState(
         user: user,
         countryCode: result['country_code'] as String?,
       ));
-    } catch (e) {
-      debugPrint('Apple 로그인 오류: $e');
+      debugPrint('🍎 [6] 상태 업데이트 완료');
+    } catch (e, stack) {
+      debugPrint('🍎 [ERROR] $e');
+      debugPrint('🍎 [STACK] $stack');
       state = const AsyncValue.data(
         AuthNotifierState(error: 'Login failed. Please try again.'),
       );
@@ -79,6 +111,13 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).deleteToken();
+    state = const AsyncValue.data(AuthNotifierState());
+  }
+
+  Future<void> deleteAppleAccount() async {
+    final repo = ref.read(authRepositoryProvider);
+    await repo.deleteAppleAccount();
+    await repo.deleteToken();
     state = const AsyncValue.data(AuthNotifierState());
   }
 }

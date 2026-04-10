@@ -44,7 +44,7 @@ class ApiClient {
       rethrow;
     } catch (e, stack) {
       await FirebaseCrashlytics.instance.recordError(e, stack);
-      rethrow;
+      throw ApiException(statusCode: 0, message: e.toString());
     }
   }
 

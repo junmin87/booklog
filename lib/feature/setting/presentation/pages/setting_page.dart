@@ -79,6 +79,44 @@ class SettingPage extends ConsumerWidget {
                   child: Text('Logout', style: AppTextStyles.notoButtonLabel.copyWith(color: AppColors.errorRedSoft)),
                 ),
               ),
+              const SizedBox(height: 12),
+              // Account deletion button
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: AppColors.darkCard,
+                        title: Text('계정 삭제', style: AppTextStyles.notoBodyMedium.copyWith(color: AppColors.onDark)),
+                        content: Text(
+                          '정말로 탈퇴하시겠습니까?\n계정과 관련된 모든 데이터가 삭제됩니다.',
+                          style: AppTextStyles.notoBodySecondary.copyWith(color: AppColors.onDarkMuted),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(false),
+                            child: Text('취소', style: AppTextStyles.notoButtonLabel.copyWith(color: AppColors.onDarkMuted)),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(true),
+                            child: Text('탈퇴하기', style: AppTextStyles.notoButtonLabel.copyWith(color: AppColors.errorRedSoft)),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true && context.mounted) {
+                      await ref.read(authNotifierProvider.notifier).deleteAppleAccount();
+                      if (context.mounted) {
+                        Navigator.of(context, rootNavigator: true)
+                            .pushNamedAndRemoveUntil('/', (_) => false);
+                      }
+                    }
+                  },
+                  child: Text('탈퇴하기', style: AppTextStyles.notoBodySecondary.copyWith(color: AppColors.onDarkHint)),
+                ),
+              ),
             ],
           );
         },

@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import '../../../core/error/api_exception.dart';
 import '../domain/entity/auth_user.dart';
 
 // 서버 토큰 저장 키
@@ -41,108 +42,148 @@ class AuthRepository {
       ],
     );
 
+    debugPrint('🍎 [repo] credential 획득: ${credential.userIdentifier}');
+
     if (credential.identityToken == null || credential.userIdentifier == null) {
       throw Exception('Apple 인증 실패: 필수 필드 누락');
     }
 
-    final response = await http.post(
-      Uri.parse('$_baseUrl/apple/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'identityToken': credential.identityToken,
-        'userIdentifier': credential.userIdentifier,
-        'authorizationCode': credential.authorizationCode,
-        'email': credential.email,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/apple/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'identityToken': credential.identityToken,
+          'userIdentifier': credential.userIdentifier,
+          'authorizationCode': credential.authorizationCode,
+          'email': credential.email,
+        }),
+      );
 
-    // ✅ 핵심: body 디코딩
-    final decoded = jsonDecode(response.body);
-    debugPrint('statusCode: ${response.statusCode}');
-    debugPrint('raw body: ${response.body}');
-    debugPrint('decoded body: $decoded');
+      if (response.statusCode != 200) {
+        throw ApiException(statusCode: response.statusCode, message: '서버 로그인 실패: ${response.statusCode}');
+      }
 
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
 
-    if (response.statusCode != 200) {
-      throw Exception('서버 로그인 실패: ${response.statusCode}');
+      // 서버 응답에서 accessToken 키 이름은 실제 서버 구현에 맞게 변경하세요.
+      // final token = data['accessToken'] as String?;
+
+      final token = data['serverToken'] as String?;
+      if (token == null) throw Exception('서버 응답에 accessToken 없음');
+      final countryCode = data['country_code'] as String?;
+
+      // return token;
+      return {
+        'token': token,
+        'country_code': countryCode,
+      };
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
     }
-
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-
-    // 서버 응답에서 accessToken 키 이름은 실제 서버 구현에 맞게 변경하세요.
-    // final token = data['accessToken'] as String?;
-
-    final token = data['serverToken'] as String?;
-    if (token == null) throw Exception('서버 응답에 accessToken 없음');
-    final countryCode = data['country_code'] as String?;
-
-    // return token;
-    return {
-      'token': token,
-      'country_code': countryCode,
-    };
   }
 
   Future<bool> validateToken(String token) async {
-    final response = await http.post(
-      Uri.parse(_validateUrl),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(_validateUrl),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) return true;
-    if (response.statusCode == 401 || response.statusCode == 403) return false;
-    throw Exception('토큰 검증 실패: ${response.statusCode}');
+      if (response.statusCode == 200) return true;
+      if (response.statusCode == 401 || response.statusCode == 403) return false;
+      throw ApiException(statusCode: response.statusCode, message: '토큰 검증 실패: ${response.statusCode}');
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
   }
 
-
-
   Future<AuthUser?> getMe(String token) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/user/me'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
-      return AuthUser(
-        id: body['id'] as String,
-        email: body['email'] as String?,
-        countryCode: body['countryCode'] as String?,
-        languageCode: body['languageCode'] as String?,
-        plan: body['plan'] as String? ?? 'free',
-        snsType: body['snsType'] as String,
-        snsId: body['snsId'] as String,
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/user/me'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
-    }
 
-    if (response.statusCode == 401 || response.statusCode == 403) return null;
-    throw Exception('유저 정보 조회 실패: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        return AuthUser(
+          id: body['id'] as String,
+          email: body['email'] as String?,
+          countryCode: body['countryCode'] as String?,
+          languageCode: body['languageCode'] as String?,
+          plan: body['plan'] as String? ?? 'free',
+          snsType: body['snsType'] as String,
+          snsId: body['snsId'] as String,
+        );
+      }
+
+      if (response.statusCode == 401 || response.statusCode == 403) return null;
+      throw ApiException(statusCode: response.statusCode, message: '유저 정보 조회 실패: ${response.statusCode}');
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
+  }
+
+  Future<void> deleteAppleAccount() async {
+    final token = await getStoredToken();
+    if (token == null) throw const ApiException(statusCode: 401, message: '토큰 없음');
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/user/apple'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw ApiException(statusCode: response.statusCode, message: '계정 삭제 실패: ${response.statusCode}');
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
   }
 
   Future<void> saveCountry(String countryCode, String languageCode) async {
     final token = await getStoredToken();
-    if (token == null) throw Exception('토큰 없음');
+    if (token == null) throw const ApiException(statusCode: 401, message: '토큰 없음');
 
-    final response = await http.post(
-      Uri.parse('$_baseUrl/user/country'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'country_code': countryCode,
-        'language_code': languageCode,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/user/country'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'country_code': countryCode,
+          'language_code': languageCode,
+        }),
+      );
 
-    if (response.statusCode != 200) {
-      throw Exception('국가 저장 실패: ${response.statusCode}');
+      if (response.statusCode != 200) {
+        throw ApiException(statusCode: response.statusCode, message: '국가 저장 실패: ${response.statusCode}');
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
     }
   }
 }
