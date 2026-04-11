@@ -6,6 +6,10 @@ import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
 import '../../domain/entity/book.dart';
 import '../provider/sentence_notifier.dart';
+import '../widgets/book_cover.dart';
+import '../widgets/empty_sentence_view.dart';
+import '../widgets/meta_chip.dart';
+import '../widgets/section_header.dart';
 import 'sentence_card_page.dart';
 import 'sentence_input_page.dart';
 
@@ -85,7 +89,7 @@ class BookDetailPage extends ConsumerWidget {
                 ),
 
               SliverToBoxAdapter(
-                child: _SectionHeader(
+                child: SectionHeader(
                   title: l10n.savedSentences,
                   subtitle: sentences.isEmpty
                       ? l10n.noSentencesHint
@@ -98,7 +102,7 @@ class BookDetailPage extends ConsumerWidget {
               if (sentences.isEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
-                  child: _EmptySentenceView(
+                  child: EmptySentenceView(
                     onAdd: () async {
                       await Navigator.of(context).push(
                         MaterialPageRoute(
@@ -137,9 +141,6 @@ class BookDetailPage extends ConsumerWidget {
                             MaterialPageRoute(
                               builder: (_) => SentenceInputPage(
                                 book: book,
-                                // 나중에 수정 모드 지원 시 여기 확장
-                                // sentence: sentence,
-                                // isEditMode: true,
                               ),
                             ),
                           );
@@ -233,6 +234,8 @@ class BookDetailPage extends ConsumerWidget {
   }
 }
 
+// ─── Hero Section (border removed, quote bar added) ─────────────────────────
+
 class _BookHeroSection extends StatelessWidget {
   const _BookHeroSection({
     required this.book,
@@ -253,10 +256,6 @@ class _BookHeroSection extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.darkCard,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: AppColors.white.withValues(alpha: 0.05),
-            width: 1,
-          ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(18),
@@ -266,7 +265,7 @@ class _BookHeroSection extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _BookCover(coverUrl: book.coverUrl),
+                  BookCover(coverUrl: book.coverUrl),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Padding(
@@ -281,7 +280,7 @@ class _BookHeroSection extends StatelessWidget {
                             Text(book.author!, style: AppTextStyles.notoAuthor),
                           ],
                           const SizedBox(height: 12),
-                          _MetaChip(
+                          MetaChip(
                             label: sentenceCount == 0
                                 ? AppLocalizations.of(context)!.noSentencesChip
                                 : AppLocalizations.of(context)!.sentenceCountChip(sentenceCount),
@@ -301,19 +300,28 @@ class _BookHeroSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 18,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.black.withValues(alpha: 0.22),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Text(
-                    '\u201c${book.representativeSentence!.trim()}\u201d',
-                    style: AppTextStyles.notoRepresentativeQuote,
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 3,
+                        decoration: BoxDecoration(
+                          color: AppColors.accent,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            '\u201c${book.representativeSentence!.trim()}\u201d',
+                            style: AppTextStyles.notoRepresentativeQuote,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ] else ...[
@@ -344,6 +352,8 @@ class _BookHeroSection extends StatelessWidget {
   }
 }
 
+// ─── Recent Sentence Card ───────────────────────────────────────────────────
+
 class _RecentSentenceCard extends StatelessWidget {
   const _RecentSentenceCard({
     required this.sentence,
@@ -364,115 +374,36 @@ class _RecentSentenceCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.darkCardAlt,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppColors.accent.withValues(alpha: 0.18),
-            ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(AppLocalizations.of(context)!.recentSentenceTitle, style: AppTextStyles.playfairAccentLabel),
-                const SizedBox(height: 8),
-                Text(
-                  sentence.content,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.notoBodyMedium,
+                Container(
+                  width: 3,
+                  margin: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({
-    required this.title,
-    required this.subtitle,
-  });
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyles.playfairSectionTitle),
-          const SizedBox(height: 6),
-          Text(subtitle, style: AppTextStyles.notoCaption),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptySentenceView extends StatelessWidget {
-  const _EmptySentenceView({required this.onAdd});
-
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.darkCard,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: AppColors.white.withValues(alpha: 0.05),
-          ),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.auto_stories_rounded,
-                  size: 44,
-                  color: AppColors.accent,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  AppLocalizations.of(context)!.noSentencesYet,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.notoEmptyTitle,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  AppLocalizations.of(context)!.noSentencesSubtitle,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.notoEmptySubtitle,
-                ),
-                const SizedBox(height: 18),
-                OutlinedButton.icon(
-                  onPressed: onAdd,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.accent,
-                    side: BorderSide(
-                      color: AppColors.accent.withValues(alpha: 0.35),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(999),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(13, 14, 16, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(AppLocalizations.of(context)!.recentSentenceTitle, style: AppTextStyles.playfairAccentLabel),
+                        const SizedBox(height: 8),
+                        Text(
+                          sentence.content,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.notoBodyMedium,
+                        ),
+                      ],
                     ),
                   ),
-                  icon: const Icon(Icons.add, size: 18),
-                  label: Text(AppLocalizations.of(context)!.saveFirstSentence, style: AppTextStyles.notoButtonLabel),
                 ),
               ],
             ),
@@ -482,6 +413,8 @@ class _EmptySentenceView extends StatelessWidget {
     );
   }
 }
+
+// ─── Sentence List Card (border → accent bar) ───────────────────────────────
 
 class _SentenceListCard extends StatelessWidget {
   const _SentenceListCard({
@@ -511,85 +444,105 @@ class _SentenceListCard extends StatelessWidget {
                 ? AppColors.darkCardRepresentative
                 : AppColors.darkCard,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isRepresentative
-                  ? AppColors.accent.withValues(alpha: 0.55)
-                  : AppColors.white.withValues(alpha: 0.05),
-              width: 1,
-            ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 14, 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (isRepresentative) ...[
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.accent.withValues(alpha: 0.14),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(AppLocalizations.of(context)!.representativeChip, style: AppTextStyles.notoChipAccent),
-                      ),
-                    ],
+                if (isRepresentative)
+                  Container(
+                    width: 3,
+                    margin: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                ],
-                Text(
-                  '\u201c${sentence.content}\u201d',
-                  style: AppTextStyles.notoBodyContent,
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    if (sentence.pageNumber != null)
-                      Text(
-                        'p. ${sentence.pageNumber}',
-                        style: AppTextStyles.playfairAccentSmall,
-                      ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: isRepresentative ? null : onSetRepresentative,
-                      style: TextButton.styleFrom(
-                        foregroundColor: isRepresentative
-                            ? AppColors.onDarkDisabled
-                            : AppColors.accent,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                      ),
-                      child: Text(
-                        isRepresentative
-                            ? AppLocalizations.of(context)!.representativeChip
-                            : AppLocalizations.of(context)!.setAsRepresentative,
-                        style: AppTextStyles.notoButtonSmall,
-                      ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      isRepresentative ? 13 : 16,
+                      16,
+                      14,
+                      14,
                     ),
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      splashRadius: 20,
-                      onPressed: onEdit,
-                      icon: const Icon(
-                        Icons.edit_outlined,
-                        size: 20,
-                        color: AppColors.onDarkSecondary,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (isRepresentative) ...[
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accent.withValues(alpha: 0.14),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)!.representativeChip,
+                                  style: AppTextStyles.notoChipAccent,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        Text(
+                          '\u201c${sentence.content}\u201d',
+                          style: AppTextStyles.notoBodyContent,
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            if (sentence.pageNumber != null)
+                              Text(
+                                'p. ${sentence.pageNumber}',
+                                style: AppTextStyles.playfairAccentSmall,
+                              ),
+                            const Spacer(),
+                            TextButton(
+                              onPressed: isRepresentative ? null : onSetRepresentative,
+                              style: TextButton.styleFrom(
+                                foregroundColor: isRepresentative
+                                    ? AppColors.onDarkDisabled
+                                    : AppColors.accent,
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                              ),
+                              child: Text(
+                                isRepresentative
+                                    ? AppLocalizations.of(context)!.representativeChip
+                                    : AppLocalizations.of(context)!.setAsRepresentative,
+                                style: AppTextStyles.notoButtonSmall,
+                              ),
+                            ),
+                            IconButton(
+                              visualDensity: VisualDensity.compact,
+                              splashRadius: 20,
+                              onPressed: onEdit,
+                              icon: const Icon(
+                                Icons.edit_outlined,
+                                size: 20,
+                                color: AppColors.onDarkSecondary,
+                              ),
+                            ),
+                            IconButton(
+                              visualDensity: VisualDensity.compact,
+                              splashRadius: 20,
+                              onPressed: onTap,
+                              icon: const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 18,
+                                color: AppColors.onDarkMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      splashRadius: 20,
-                      onPressed: onTap,
-                      icon: const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 18,
-                        color: AppColors.onDarkMuted,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -600,65 +553,3 @@ class _SentenceListCard extends StatelessWidget {
   }
 }
 
-class _BookCover extends StatelessWidget {
-  const _BookCover({required this.coverUrl});
-
-  final String? coverUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: SizedBox(
-        width: 92,
-        height: 132,
-        child: coverUrl != null
-            ? Image.network(
-          coverUrl!,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const _CoverFallback(),
-        )
-            : const _CoverFallback(),
-      ),
-    );
-  }
-}
-
-class _CoverFallback extends StatelessWidget {
-  const _CoverFallback();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.ink,
-      child: const Center(
-        child: Icon(
-          Icons.menu_book_rounded,
-          color: AppColors.muted,
-          size: 34,
-        ),
-      ),
-    );
-  }
-}
-
-class _MetaChip extends StatelessWidget {
-  const _MetaChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: AppColors.accent.withValues(alpha: 0.22),
-        ),
-      ),
-      child: Text(label, style: AppTextStyles.notoChipMuted),
-    );
-  }
-}
