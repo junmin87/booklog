@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/app_colors.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../domain/entity/book.dart';
 import '../../domain/entity/sentence.dart';
 
@@ -12,11 +13,19 @@ class SentenceCard extends StatelessWidget {
 
   double _adaptiveFontSize(String text) {
     final len = text.length;
-    if (len <= 10) return 28;
-    if (len <= 30) return 22;
-    if (len <= 80) return 18;
-    if (len <= 150) return 16;
-    return 14;
+    double size;
+    if (len <= 10) {
+      size = 28;
+    } else if (len <= 30) {
+      size = 22;
+    } else if (len <= 80) {
+      size = 18;
+    } else if (len <= 150) {
+      size = 16;
+    } else {
+      size = 14;
+    }
+    return Responsive.sp(size);
   }
 
   double _adaptiveLineHeight(String text) {
@@ -66,9 +75,9 @@ class SentenceCard extends StatelessWidget {
 
               // 3) Content pinned to bottom
               Positioned(
-                left: 24,
-                right: 24,
-                bottom: 24,
+                left: Responsive.w(24),
+                right: Responsive.w(24),
+                bottom: Responsive.w(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +117,7 @@ class SentenceCard extends StatelessWidget {
                                   '— ${book.title}',
                                   style: TextStyle(
                                     color: AppColors.white.withValues(alpha: 0.6),
-                                    fontSize: 12,
+                                    fontSize: Responsive.sp(12),
                                     fontStyle: FontStyle.italic,
                                   ),
                                   maxLines: 1,
@@ -124,7 +133,7 @@ class SentenceCard extends StatelessWidget {
                                       style: TextStyle(
                                         color: AppColors.white
                                             .withValues(alpha: 0.38),
-                                        fontSize: 11,
+                                        fontSize: Responsive.sp(11),
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -139,7 +148,7 @@ class SentenceCard extends StatelessWidget {
                                       style: TextStyle(
                                         color: AppColors.white
                                             .withValues(alpha: 0.3),
-                                        fontSize: 11,
+                                        fontSize: Responsive.sp(11),
                                       ),
                                     ),
                                   ),
@@ -170,7 +179,7 @@ class SentenceCard extends StatelessWidget {
                               'BOOK LOG',
                               style: TextStyle(
                                 color: AppColors.white,
-                                fontSize: 10,
+                                fontSize: Responsive.sp(10),
                                 letterSpacing: 1.8,
                                 fontWeight: FontWeight.w500,
                               ),

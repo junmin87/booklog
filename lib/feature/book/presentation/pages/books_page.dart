@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../domain/entity/book.dart';
 import '../provider/book_provider.dart';
 import 'book_detail_page.dart';
@@ -23,7 +24,7 @@ class BooksPage extends ConsumerWidget {
         backgroundColor: AppColors.darkBg,
         elevation: 0,
         centerTitle: false,
-        title: Text(l10n.myBooks, style: AppTextStyles.playfairPageTitle),
+        title: Text(l10n.myBooks, style: AppTextStyles.playfairPageTitle.copyWith(fontSize: Responsive.sp(28))),
       ),
       body: asyncBooks.when(
         loading: () => const Center(
@@ -116,7 +117,7 @@ class _BookCard extends StatelessWidget {
         MaterialPageRoute(builder: (_) => BookDetailPage(book: book)),
       ),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        margin: EdgeInsets.symmetric(horizontal: Responsive.w(20), vertical: 10),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: AspectRatio(
@@ -162,15 +163,15 @@ class _BookCard extends StatelessWidget {
                 // 중앙 문장 / 문장 없음 UI
                 Positioned.fill(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: EdgeInsets.symmetric(horizontal: Responsive.w(24)),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (hasSentence) ...[
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Responsive.w(16),
                               vertical: 18,
                             ),
                             decoration: BoxDecoration(
@@ -201,15 +202,15 @@ class _BookCard extends StatelessWidget {
                                           children: [
                                             TextSpan(
                                               text: '\u201c',
-                                              style: AppTextStyles.notoCardQuoteMark,
+                                              style: AppTextStyles.notoCardQuoteMark.copyWith(fontSize: Responsive.sp(26)),
                                             ),
                                             TextSpan(
                                               text: book.representativeSentence!.trim(),
-                                              style: AppTextStyles.notoCardQuoteText,
+                                              style: AppTextStyles.notoCardQuoteText.copyWith(fontSize: Responsive.sp(22)),
                                             ),
                                             TextSpan(
                                               text: '\u201d',
-                                              style: AppTextStyles.notoCardQuoteMark,
+                                              style: AppTextStyles.notoCardQuoteMark.copyWith(fontSize: Responsive.sp(26)),
                                             ),
                                           ],
                                         ),
@@ -219,7 +220,7 @@ class _BookCard extends StatelessWidget {
 
                                       Text(
                                         '— ${book.title}',
-                                        style: AppTextStyles.notoAttributionSubtle,
+                                        style: AppTextStyles.notoAttributionSubtle.copyWith(fontSize: Responsive.sp(13)),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -231,8 +232,8 @@ class _BookCard extends StatelessWidget {
                           ),
                         ] else ...[
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Responsive.w(18),
                               vertical: 18,
                             ),
                             decoration: BoxDecoration(
@@ -258,7 +259,7 @@ class _BookCard extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     AppLocalizations.of(context)!.recordFirstSentence,
-                                    style: AppTextStyles.notoCardCta,
+                                    style: AppTextStyles.notoCardCta.copyWith(fontSize: Responsive.sp(18)),
                                   ),
                                 ),
                               ],

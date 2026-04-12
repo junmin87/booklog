@@ -13,6 +13,7 @@ import 'package:book_log/l10n/app_localizations.dart';
 import 'app/shell_page.dart';
 import 'app/theme.dart';
 import 'core/service/update_check_service.dart';
+import 'core/utils/responsive.dart';
 import 'core/widgets/update_dialog.dart';
 import 'feature/auth/presentation/pages/country_select.dart';
 import 'feature/auth/presentation/pages/login_page.dart';
@@ -82,6 +83,10 @@ class MyApp extends ConsumerWidget {
       navigatorKey: _navigatorKey,
       title: 'Book Log',
       theme: AppTheme.light,
+      builder: (context, child) {
+        Responsive.init(context);
+        return child!;
+      },
       locale: languageCode != null ? Locale(languageCode) : null,
       localizationsDelegates: const [
         AppLocalizations.delegate,

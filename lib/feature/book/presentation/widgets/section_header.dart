@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/app_text_styles.dart';
+import '../../../../core/utils/responsive.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
@@ -19,7 +20,7 @@ class SectionHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyles.playfairSectionTitle),
+          Text(title, style: AppTextStyles.playfairSectionTitle.copyWith(fontSize: Responsive.sp(22))),
           const SizedBox(height: 6),
           Text(subtitle, style: AppTextStyles.notoCaption),
         ],
