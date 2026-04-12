@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../../core/service/review_service.dart';
+import '../../../../core/utils/validators.dart';
 import '../../domain/entity/book_search_result.dart';
 import '../provider/book_search_provider.dart';
 
@@ -138,7 +139,10 @@ class _SearchFieldState extends State<_SearchField> {
         border: InputBorder.none,
       ),
       textInputAction: TextInputAction.search,
-      onSubmitted: widget.onSearch,
+      onSubmitted: (value) {
+        if (Validators.searchQuery(value) != null) return;
+        widget.onSearch(value.trim());
+      },
     );
   }
 }

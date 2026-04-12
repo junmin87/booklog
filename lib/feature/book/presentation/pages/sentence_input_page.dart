@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
 import '../../../../core/service/review_service.dart';
+import '../../../../core/utils/validators.dart';
 import '../../domain/entity/book.dart';
 import '../provider/sentence_notifier.dart';
 
@@ -18,10 +19,11 @@ class SentenceInputPage extends ConsumerStatefulWidget {
 }
 
 class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
+  final _formKey = GlobalKey<FormState>();
   final _contentController = TextEditingController();
   final _pageController = TextEditingController();
   bool _isSaving = false;
-  String? _error;
+  String? _saveError;
 
   @override
   void dispose() {
@@ -31,31 +33,16 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
   }
 
   Future<void> _save() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
     final content = _contentController.text.trim();
-
-    final l10n = AppLocalizations.of(context)!;
-
-    // ✅ 문장 필수 입력
-    if (content.isEmpty) {
-      setState(() => _error = l10n.sentenceRequired);
-      return;
-    }
-
-    // ✅ 페이지 입력 처리
     final pageText = _pageController.text.trim();
-
-    // 숫자 아닌 경우 차단
-    if (pageText.isNotEmpty && int.tryParse(pageText) == null) {
-      setState(() => _error = l10n.pageNumberOnly);
-      return;
-    }
-
     final pageNumber = pageText.isNotEmpty ? int.parse(pageText) : null;
     final bookId = widget.book.id;
 
     setState(() {
       _isSaving = true;
-      _error = null;
+      _saveError = null;
     });
 
     try {
@@ -68,7 +55,7 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _saveError = e.toString());
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -77,6 +64,8 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.darkBg,
       appBar: AppBar(
@@ -90,60 +79,65 @@ class _SentenceInputPageState extends ConsumerState<SentenceInputPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          AppLocalizations.of(context)!.saveSentenceTitle,
+          l10n.saveSentenceTitle,
           style: AppTextStyles.playfairAppBarTitle,
         ),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _DarkLabel(label: AppLocalizations.of(context)!.sentenceLabel),
-              const SizedBox(height: 8),
-              _DarkTextField(
-                controller: _contentController,
-                hintText: AppLocalizations.of(context)!.sentenceHint,
-                maxLines: 6,
-                keyboardType: TextInputType.multiline,
-              ),
-              const SizedBox(height: 20),
-              _DarkLabel(label: AppLocalizations.of(context)!.pageNumberLabel),
-              const SizedBox(height: 8),
-              _DarkTextField(
-                controller: _pageController,
-                hintText: AppLocalizations.of(context)!.pageNumberHint,
-                maxLines: 1,
-                keyboardType: TextInputType.number,
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
-                Text(_error!, style: AppTextStyles.notoError),
-              ],
-              const Spacer(),
-              FilledButton(
-                onPressed: _isSaving ? null : _save,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.accent,
-                  disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.4),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _DarkLabel(label: l10n.sentenceLabel),
+                const SizedBox(height: 8),
+                _DarkTextField(
+                  controller: _contentController,
+                  hintText: l10n.sentenceHint,
+                  maxLines: 6,
+                  keyboardType: TextInputType.multiline,
+                  validator: (v) => Validators.sentence(v, l10n),
                 ),
-                child: _isSaving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.white,
-                        ),
-                      )
-                    : Text(AppLocalizations.of(context)!.save, style: AppTextStyles.notoSaveButton),
-              ),
-            ],
+                const SizedBox(height: 20),
+                _DarkLabel(label: l10n.pageNumberLabel),
+                const SizedBox(height: 8),
+                _DarkTextField(
+                  controller: _pageController,
+                  hintText: l10n.pageNumberHint,
+                  maxLines: 1,
+                  keyboardType: TextInputType.number,
+                  validator: (v) => Validators.pageNumber(v, l10n),
+                ),
+                if (_saveError != null) ...[
+                  const SizedBox(height: 12),
+                  Text(_saveError!, style: AppTextStyles.notoError),
+                ],
+                const Spacer(),
+                FilledButton(
+                  onPressed: _isSaving ? null : _save,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.4),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.white,
+                          ),
+                        )
+                      : Text(l10n.save, style: AppTextStyles.notoSaveButton),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -168,20 +162,23 @@ class _DarkTextField extends StatelessWidget {
     required this.hintText,
     required this.maxLines,
     required this.keyboardType,
+    this.validator,
   });
 
   final TextEditingController controller;
   final String hintText;
   final int maxLines;
   final TextInputType keyboardType;
+  final FormFieldValidator<String>? validator;
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
       style: AppTextStyles.notoInput,
+      validator: validator,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: AppTextStyles.notoHint,
@@ -191,6 +188,7 @@ class _DarkTextField extends StatelessWidget {
           horizontal: 16,
           vertical: 14,
         ),
+        errorStyle: AppTextStyles.notoError,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
@@ -207,6 +205,19 @@ class _DarkTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(
             color: AppColors.accent,
+            width: 1.5,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: AppColors.errorRedSoft,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: AppColors.errorRedSoft,
             width: 1.5,
           ),
         ),

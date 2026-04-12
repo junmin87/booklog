@@ -311,6 +311,12 @@ abstract class AppLocalizations {
   /// **'Please enter a sentence'**
   String get sentenceRequired;
 
+  /// Validation error when sentence exceeds 500 characters
+  ///
+  /// In en, this message translates to:
+  /// **'Sentence must be 500 characters or less'**
+  String get sentenceTooLong;
+
   /// Validation error when page number is not numeric
   ///
   /// In en, this message translates to:
