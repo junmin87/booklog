@@ -189,5 +189,10 @@
   "@bestseller": { "description": "Bestsellers section header on book search page" },
 
   "addFirstBook": "+ Add your first book",
-   "@addFirstBook": { "description": "CTA button on empty books page" }
+  "@addFirstBook": { "description": "CTA button on empty books page" },
+
+  "sentenceTooLong": "Too long Text",
+  "@sentenceTooLong": { "description": "text is too long, limit (500)" }
+
+
 }

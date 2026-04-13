@@ -125,9 +125,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sentenceRequired => '문장을 입력해주세요';
 
   @override
-  String get sentenceTooLong => '문장은 500자 이하로 입력해주세요';
-
-  @override
   String get pageNumberOnly => '페이지는 숫자로 입력해주세요';
 
   @override
@@ -189,4 +186,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get addFirstBook => '+ 첫 번째 책 추가하기';
+
+  @override
+  String get sentenceTooLong => '문장이 너무깁니다. (500자 제한)';
 }

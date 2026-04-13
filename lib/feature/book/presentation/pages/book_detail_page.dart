@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
 import '../../domain/entity/book.dart';
+import '../provider/book_provider.dart';
 import '../provider/sentence_notifier.dart';
 import '../widgets/book_cover.dart';
 import '../widgets/empty_sentence_view.dart';
@@ -21,6 +22,11 @@ class BookDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookId = book.id;
+    final asyncBooks = ref.watch(bookNotifierProvider);
+    final currentBook = asyncBooks.whenOrNull(
+          data: (books) => books.where((b) => b.id == bookId).firstOrNull,
+        ) ??
+        book;
     final asyncSentences = ref.watch(sentenceNotifierProvider(bookId));
 
     return Scaffold(
@@ -54,8 +60,8 @@ class BookDetailPage extends ConsumerWidget {
           child: Text(e.toString(), style: AppTextStyles.notoBodySecondary),
         ),
         data: (sentences) {
-          final hasRepresentative = book.representativeSentence != null &&
-              book.representativeSentence!.trim().isNotEmpty;
+          final hasRepresentative = currentBook.representativeSentence != null &&
+              currentBook.representativeSentence!.trim().isNotEmpty;
           final recentSentence = sentences.isNotEmpty ? sentences.first : null;
           final l10n = AppLocalizations.of(context)!;
 
@@ -63,7 +69,7 @@ class BookDetailPage extends ConsumerWidget {
             slivers: [
               SliverToBoxAdapter(
                 child: _BookHeroSection(
-                  book: book,
+                  book: currentBook,
                   sentenceCount: sentences.length,
                 ),
               ),
@@ -121,9 +127,9 @@ class BookDetailPage extends ConsumerWidget {
                     itemBuilder: (context, i) {
                       final sentence = sentences[i];
                       final isRepresentative =
-                          (book.representativeSentence?.trim().isNotEmpty ?? false) &&
+                          (currentBook.representativeSentence?.trim().isNotEmpty ?? false) &&
                               sentence.content.trim() ==
-                                  book.representativeSentence!.trim();
+                                  currentBook.representativeSentence!.trim();
 
                       return _SentenceListCard(
                         sentence: sentence,

@@ -58,5 +58,6 @@
   "languageKorean": "한국어",
   "languageEnglish": "English",
   "bestseller": "베스트셀러",
-  "addFirstBook": "+ 첫 번째 책 추가하기"
+  "addFirstBook": "+ 첫 번째 책 추가하기",
+  "sentenceTooLong": "문장이 너무깁니다. (500자 제한)"
 }

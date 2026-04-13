@@ -125,9 +125,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sentenceRequired => 'Please enter a sentence';
 
   @override
-  String get sentenceTooLong => 'Sentence must be 500 characters or less';
-
-  @override
   String get pageNumberOnly => 'Enter page number as a number';
 
   @override
@@ -189,4 +186,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addFirstBook => '+ Add your first book';
+
+  @override
+  String get sentenceTooLong => 'Too long Text';
 }
