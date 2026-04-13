@@ -20,31 +20,31 @@ final authRepositoryProvider =
     Provider<AuthRepository>((ref) => AuthRepository());
 
 final bookRepositoryProvider = Provider<BookRepository>(
-  (ref) => BookRepositoryImpl(apiClient: ref.read(apiClientProvider)),
+  (ref) => BookRepositoryImpl(apiClient: ref.watch(apiClientProvider)),
 );
 
 final sentenceRepositoryProvider = Provider<SentenceRepository>(
-  (ref) => SentenceRepositoryImpl(apiClient: ref.read(apiClientProvider)),
+  (ref) => SentenceRepositoryImpl(apiClient: ref.watch(apiClientProvider)),
 );
 
 final addBookUseCaseProvider = Provider<AddBookUseCase>(
-  (ref) => AddBookUseCase(ref.read(bookRepositoryProvider)),
+  (ref) => AddBookUseCase(ref.watch(bookRepositoryProvider)),
 );
 
 final getBooksUseCaseProvider = Provider<GetBooksUseCase>(
-  (ref) => GetBooksUseCase(ref.read(bookRepositoryProvider)),
+  (ref) => GetBooksUseCase(ref.watch(bookRepositoryProvider)),
 );
 
 final addSentenceUseCaseProvider = Provider<AddSentenceUseCase>(
-  (ref) => AddSentenceUseCase(ref.read(sentenceRepositoryProvider)),
+  (ref) => AddSentenceUseCase(ref.watch(sentenceRepositoryProvider)),
 );
 
 final getSentencesUseCaseProvider = Provider<GetSentencesUseCase>(
-  (ref) => GetSentencesUseCase(ref.read(sentenceRepositoryProvider)),
+  (ref) => GetSentencesUseCase(ref.watch(sentenceRepositoryProvider)),
 );
 
 final setRepresentativeSentenceUseCaseProvider =
     Provider<SetRepresentativeSentenceUseCase>(
   (ref) =>
-      SetRepresentativeSentenceUseCase(ref.read(sentenceRepositoryProvider)),
+      SetRepresentativeSentenceUseCase(ref.watch(sentenceRepositoryProvider)),
 );

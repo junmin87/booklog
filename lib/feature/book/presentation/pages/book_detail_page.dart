@@ -27,7 +27,6 @@ class BookDetailPage extends ConsumerWidget {
           data: (books) => books.where((b) => b.id == bookId).firstOrNull,
         ) ??
         book;
-    final asyncSentences = ref.watch(sentenceNotifierProvider(bookId));
 
     return Scaffold(
       backgroundColor: AppColors.darkBg,
@@ -52,20 +51,23 @@ class BookDetailPage extends ConsumerWidget {
           ),
         ),
       ),
-      body: asyncSentences.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.accent),
-        ),
-        error: (e, _) => Center(
-          child: Text(e.toString(), style: AppTextStyles.notoBodySecondary),
-        ),
-        data: (sentences) {
-          final hasRepresentative = currentBook.representativeSentence != null &&
-              currentBook.representativeSentence!.trim().isNotEmpty;
-          final recentSentence = sentences.isNotEmpty ? sentences.first : null;
-          final l10n = AppLocalizations.of(context)!;
+      body: Consumer(
+        builder: (context, ref, _) {
+          final asyncSentences = ref.watch(sentenceNotifierProvider(bookId));
+          return asyncSentences.when(
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: AppColors.accent),
+            ),
+            error: (e, _) => Center(
+              child: Text(e.toString(), style: AppTextStyles.notoBodySecondary),
+            ),
+            data: (sentences) {
+              final hasRepresentative = currentBook.representativeSentence != null &&
+                  currentBook.representativeSentence!.trim().isNotEmpty;
+              final recentSentence = sentences.isNotEmpty ? sentences.first : null;
+              final l10n = AppLocalizations.of(context)!;
 
-          return CustomScrollView(
+              return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: _BookHeroSection(
@@ -164,6 +166,8 @@ class BookDetailPage extends ConsumerWidget {
                   ),
                 ),
             ],
+          );
+            },
           );
         },
       ),

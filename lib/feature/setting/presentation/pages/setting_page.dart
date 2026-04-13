@@ -111,7 +111,7 @@ class SettingPage extends ConsumerWidget {
                   onTap: () {
                     final box = context.findRenderObject() as RenderBox?;
                     Share.share(
-                      'Check out Book Log! https://booklog.app (coming soon)',
+                      'https://apps.apple.com/app/id6762139444',
                       sharePositionOrigin: box != null
                           ? box.localToGlobal(Offset.zero) & box.size
                           : null,

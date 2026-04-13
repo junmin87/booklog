@@ -65,7 +65,7 @@ Future<void> main() async {
         message: 'A new version of Book Log is available. Please update to continue.',
         updateLabel: 'Update',
         laterLabel: 'Later',
-        updateUrl: 'https://apps.apple.com/app/id000000000',
+        updateUrl: 'https://apps.apple.com/app/id6762139444',
       ),
     );
   });

@@ -20,6 +20,24 @@ class BookSearchState {
     this.hasSearched = false,
     this.error,
   });
+
+  BookSearchState copyWith({
+    List<BookSearchResult>? results,
+    List<BookSearchResult>? bestsellers,
+    bool? isAdding,
+    bool? isLoadingBestsellers,
+    bool? hasSearched,
+    String? error,
+  }) {
+    return BookSearchState(
+      results: results ?? this.results,
+      bestsellers: bestsellers ?? this.bestsellers,
+      isAdding: isAdding ?? this.isAdding,
+      isLoadingBestsellers: isLoadingBestsellers ?? this.isLoadingBestsellers,
+      hasSearched: hasSearched ?? this.hasSearched,
+      error: error ?? this.error,
+    );
+  }
 }
 
 class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
@@ -31,33 +49,17 @@ class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
 
   Future<void> loadBestsellers() async {
     final current = state.valueOrNull ?? const BookSearchState();
-    state = AsyncValue.data(BookSearchState(
-      results: current.results,
-      bestsellers: current.bestsellers,
-      isAdding: current.isAdding,
-      hasSearched: current.hasSearched,
-      isLoadingBestsellers: true,
-    ));
+    state = AsyncValue.data(current.copyWith(isLoadingBestsellers: true));
     try {
       final bestsellers =
           await ref.read(bookRepositoryProvider).getBestsellers();
       final after = state.valueOrNull ?? const BookSearchState();
-      state = AsyncValue.data(BookSearchState(
-        results: after.results,
-        bestsellers: bestsellers,
-        isAdding: after.isAdding,
-        hasSearched: after.hasSearched,
-        isLoadingBestsellers: false,
-      ));
+      state = AsyncValue.data(
+        after.copyWith(bestsellers: bestsellers, isLoadingBestsellers: false),
+      );
     } catch (_) {
       final after = state.valueOrNull ?? const BookSearchState();
-      state = AsyncValue.data(BookSearchState(
-        results: after.results,
-        bestsellers: after.bestsellers,
-        isAdding: after.isAdding,
-        hasSearched: after.hasSearched,
-        isLoadingBestsellers: false,
-      ));
+      state = AsyncValue.data(after.copyWith(isLoadingBestsellers: false));
     }
   }
 
@@ -88,28 +90,14 @@ class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
 
   Future<bool> addBook(BookSearchResult result) async {
     final current = state.value ?? const BookSearchState();
-    state = AsyncValue.data(BookSearchState(
-      results: current.results,
-      bestsellers: current.bestsellers,
-      hasSearched: current.hasSearched,
-      isAdding: true,
-    ));
+    state = AsyncValue.data(current.copyWith(isAdding: true));
     try {
       await ref.read(addBookUseCaseProvider).execute(result);
       ref.invalidate(bookNotifierProvider);
-      state = AsyncValue.data(BookSearchState(
-        results: current.results,
-        bestsellers: current.bestsellers,
-        hasSearched: current.hasSearched,
-      ));
+      state = AsyncValue.data(current.copyWith(isAdding: false));
       return true;
     } catch (e) {
-      state = AsyncValue.data(BookSearchState(
-        results: current.results,
-        bestsellers: current.bestsellers,
-        hasSearched: current.hasSearched,
-        error: e.toString(),
-      ));
+      state = AsyncValue.data(current.copyWith(isAdding: false, error: e.toString()));
       return false;
     }
   }
