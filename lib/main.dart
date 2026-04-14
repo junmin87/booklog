@@ -12,6 +12,7 @@ import 'package:book_log/l10n/app_localizations.dart';
 
 import 'app/shell_page.dart';
 import 'app/theme.dart';
+import 'core/service/push_service.dart';
 import 'core/service/update_check_service.dart';
 import 'core/utils/responsive.dart';
 import 'core/widgets/update_dialog.dart';
@@ -26,6 +27,7 @@ Future<void> main() async {
 
   await dotenv.load();
   await Firebase.initializeApp();
+  await PushService().init();
   await FirebaseAnalytics.instance;
 
   if (!kDebugMode) {

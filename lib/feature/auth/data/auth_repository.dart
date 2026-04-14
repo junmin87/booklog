@@ -160,6 +160,53 @@ class AuthRepository {
     }
   }
 
+  Future<void> registerFcmToken(String fcmToken) async {
+    final token = await getStoredToken();
+    if (token == null) return;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/user/fcm-token'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'fcmToken': fcmToken}),
+      );
+
+      if (response.statusCode != 200) {
+        throw ApiException(statusCode: response.statusCode, message: 'FCM 토큰 등록 실패: ${response.statusCode}');
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
+  }
+
+  Future<void> deleteFcmToken() async {
+    final token = await getStoredToken();
+    if (token == null) return;
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/user/fcm-token'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw ApiException(statusCode: response.statusCode, message: 'FCM 토큰 삭제 실패: ${response.statusCode}');
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
+  }
+
   Future<void> saveCountry(String countryCode, String languageCode) async {
     final token = await getStoredToken();
     if (token == null) throw const ApiException(statusCode: 401, message: '토큰 없음');

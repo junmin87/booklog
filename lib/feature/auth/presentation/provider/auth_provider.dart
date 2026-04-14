@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,8 +30,14 @@ class AuthNotifierState {
 
 // Migration: AsyncNotifier replaces ChangeNotifier; build() runs auto-login once on first ref access
 class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
+  StreamSubscription<String>? _tokenRefreshSub;
+
   @override
   Future<AuthNotifierState> build() async {
+    ref.onDispose(() {
+      _tokenRefreshSub?.cancel();
+    });
+
     // Migration: build() replaces tryAutoLogin() called via addPostFrameCallback in LoginPage.initState
     final repo = ref.read(authRepositoryProvider);
     final token = await repo.getStoredToken();
@@ -39,34 +47,13 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
     if (isValid) {
       final user = await repo.getMe(token);
       debugPrint('User : ${user.toString()}');
+      _registerFcmToken();
       return AuthNotifierState(user: user, countryCode: user?.countryCode, languageCode: user?.languageCode);
     } else {
       await repo.deleteToken();
       return const AuthNotifierState();
     }
   }
-
-  // Future<void> signInWithApple() async {
-  //   // Migration: state = AsyncValue.loading() replaces _setState(AuthState.loading) + notifyListeners()
-  //   state = const AsyncValue.loading();
-  //   try {
-  //     final repo = ref.read(authRepositoryProvider);
-  //     final result = await repo.appleLogin();
-  //     await repo.saveToken(result['token'] as String);
-  //     final token = result['token'] as String;
-  //     final user = await repo.getMe(token);
-  //     state = AsyncValue.data(AuthNotifierState(
-  //       user: user,
-  //       countryCode: result['country_code'] as String?,
-  //     ));
-  //   } catch (e) {
-  //     debugPrint('Apple 로그인 오류: $e');
-  //     state = const AsyncValue.data(
-  //       AuthNotifierState(error: 'Login failed. Please try again.'),
-  //     );
-  //   }
-  // }
-
 
   Future<void> signInWithApple() async {
     state = const AsyncValue.loading();
@@ -90,6 +77,7 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
         countryCode: result['country_code'] as String?,
       ));
       debugPrint('🍎 [6] 상태 업데이트 완료');
+      _registerFcmToken();
     } catch (e, stack) {
       debugPrint('🍎 [ERROR] $e');
       debugPrint('🍎 [STACK] $stack');
@@ -112,15 +100,57 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
   }
 
   Future<void> logout() async {
+    try {
+      await ref.read(authRepositoryProvider).deleteFcmToken();
+    } catch (e) {
+      debugPrint('[FCM] 토큰 삭제 실패: $e');
+    }
+    _tokenRefreshSub?.cancel();
+    _tokenRefreshSub = null;
     await ref.read(authRepositoryProvider).deleteToken();
     state = const AsyncValue.data(AuthNotifierState());
   }
 
   Future<void> deleteAppleAccount() async {
     final repo = ref.read(authRepositoryProvider);
+    try {
+      await repo.deleteFcmToken();
+    } catch (e) {
+      debugPrint('[FCM] 토큰 삭제 실패: $e');
+    }
+    _tokenRefreshSub?.cancel();
+    _tokenRefreshSub = null;
     await repo.deleteAppleAccount();
     await repo.deleteToken();
     state = const AsyncValue.data(AuthNotifierState());
+  }
+
+  void _registerFcmToken() {
+    Future<void>(() async {
+      try {
+        final pushService = ref.read(pushServiceProvider);
+        final repo = ref.read(authRepositoryProvider);
+
+        final granted = await pushService.requestPermission();
+        if (!granted) return;
+
+        final fcmToken = await pushService.getToken();
+        if (fcmToken != null) {
+          await repo.registerFcmToken(fcmToken);
+        }
+
+        _tokenRefreshSub?.cancel();
+        _tokenRefreshSub = pushService.onTokenRefresh.listen((newToken) async {
+          try {
+            await repo.registerFcmToken(newToken);
+          } catch (e) {
+            debugPrint('[FCM] 토큰 갱신 등록 실패: $e');
+          }
+        });
+      } catch (e) {
+        debugPrint('[FCM] 토큰 등록 실패: $e');
+      }
+    });
   }
 }
 
