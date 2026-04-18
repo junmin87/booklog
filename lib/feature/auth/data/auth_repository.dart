@@ -10,10 +10,14 @@ import '../domain/entity/auth_user.dart';
 const _kServerTokenKey = 'serverToken';
 
 class AuthRepository {
-  AuthRepository({required ApiClient apiClient}) : _apiClient = apiClient;
+  AuthRepository({
+    required ApiClient apiClient,
+    FlutterSecureStorage? storage,
+  })  : _apiClient = apiClient,
+        _storage = storage ?? const FlutterSecureStorage();
 
   final ApiClient _apiClient;
-  final _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage _storage;
 
   // ── 토큰 저장소 ─────────────────────────────────────
 

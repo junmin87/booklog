@@ -2,21 +2,25 @@ import 'package:dio/dio.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:meta/meta.dart';
 
 import '../error/api_exception.dart';
 
 const _kServerTokenKey = 'serverToken';
 
 class ApiClient {
-  ApiClient({FlutterSecureStorage? storage})
+  ApiClient({FlutterSecureStorage? storage, @visibleForTesting Dio? dio})
       : _storage = storage ?? const FlutterSecureStorage() {
-    _dio = Dio(BaseOptions(
-      baseUrl: dotenv.env['BASE_URL']!,
-      contentType: 'application/json',
-    ));
+    _dio = dio ??
+        Dio(BaseOptions(
+          baseUrl: dotenv.env['BASE_URL']!,
+          contentType: 'application/json',
+        ));
 
     _dio.interceptors.add(_AuthInterceptor(_storage));
-    _dio.interceptors.add(_CrashlyticsInterceptor());
+    if (dio == null) {
+      _dio.interceptors.add(_CrashlyticsInterceptor());
+    }
   }
 
   final FlutterSecureStorage _storage;
@@ -110,8 +114,12 @@ class ApiClient {
     } on ApiException {
       rethrow;
     } on DioException catch (e) {
+      if (e.error is ApiException) {
+        throw e.error as ApiException;
+      }
       final statusCode = e.response?.statusCode ?? 0;
-      final message = e.response?.data?.toString() ?? e.message ?? 'Unknown error';
+      final message =
+          e.response?.data?.toString() ?? e.message ?? 'Unknown error';
       throw ApiException(statusCode: statusCode, message: message);
     } catch (e, stack) {
       await FirebaseCrashlytics.instance.recordError(e, stack);
