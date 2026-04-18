@@ -19,8 +19,9 @@ final pushServiceProvider = Provider<PushService>((ref) => PushService());
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
 
 
-final authRepositoryProvider =
-    Provider<AuthRepository>((ref) => AuthRepository());
+final authRepositoryProvider = Provider<AuthRepository>(
+  (ref) => AuthRepository(apiClient: ref.watch(apiClientProvider)),
+);
 
 final bookRepositoryProvider = Provider<BookRepository>(
   (ref) => BookRepositoryImpl(apiClient: ref.watch(apiClientProvider)),
