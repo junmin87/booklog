@@ -71,9 +71,11 @@ class AuthRepository {
   Future<bool> validateToken(String token) async {
     try {
       await _apiClient.post(
-        '/auth/validate',
+        // '/auth/validate',
+        '/validate-token',
         {},
-        authenticated: false,
+        // authenticated: false,
+        authenticated: true,  //add token
         successCodes: [200],
       );
       return true;
@@ -112,7 +114,7 @@ class AuthRepository {
 
     await _apiClient.post(
       '/user/fcm-token',
-      {'fcmToken': fcmToken},
+      {'fcm_token': fcmToken},  // fcmToken → fcm_token
     );
   }
 
