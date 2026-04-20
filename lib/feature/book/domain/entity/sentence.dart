@@ -1,18 +1,21 @@
-class Sentence {
-  final String id;
-  final String bookId;
-  final String content;
-  final int? pageNumber;
-  final DateTime createdAt;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Sentence({
-    required this.id,
-    required this.bookId,
-    required this.content,
-    this.pageNumber,
-    required this.createdAt,
-  });
+part 'sentence.freezed.dart';
 
+// 책에서 발췌한 문장 엔티티
+// Sentence entity (a passage saved from a book)
+@freezed
+abstract class Sentence with _$Sentence {
+  const factory Sentence({
+    required String id,
+    @JsonKey(name: 'book_id') required String bookId,
+    required String content,
+    @JsonKey(name: 'page_number') int? pageNumber,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+  }) = _Sentence;
+
+  // 서버 JSON 응답에서 Sentence 객체 생성
+  // Create Sentence from server JSON response
   factory Sentence.fromJson(Map<String, dynamic> json) {
     return Sentence(
       id: json['id'].toString(),

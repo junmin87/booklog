@@ -1,24 +1,22 @@
-class AuthUser {
-  final String id;
-  final String? email;
-  final String? countryCode;
-  final String? languageCode;
-  final String plan;
-  final String snsType;
-  final String snsId;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const AuthUser({
-    required this.id,
-    this.email,
-    this.countryCode,
-    this.languageCode,
-    this.plan = 'free',
-    required this.snsType,
-    required this.snsId,
-  });
+part 'auth_user.freezed.dart';
+part 'auth_user.g.dart';
 
-  @override
-  String toString() {
-    return 'AuthUser{id: $id, email: $email, countryCode: $countryCode, languageCode: $languageCode, plan: $plan, snsType: $snsType, snsId: $snsId}';
-  }
+// 인증된 사용자 엔티티
+// Authenticated user entity
+@freezed
+abstract class AuthUser with _$AuthUser {
+  const factory AuthUser({
+    required String id,
+    String? email,
+    String? countryCode,
+    String? languageCode,
+    @Default('free') String plan,
+    required String snsType,
+    required String snsId,
+  }) = _AuthUser;
+
+  factory AuthUser.fromJson(Map<String, dynamic> json) =>
+      _$AuthUserFromJson(json);
 }

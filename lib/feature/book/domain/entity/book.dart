@@ -1,8 +1,17 @@
 import 'package:flutter/cupertino.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
+part 'book.freezed.dart';
+
+// 독서 상태 열거형
+// Reading status enum
 enum ReadingStatus { wantToRead, reading, finished }
 
+// ReadingStatus ↔ 서버 API 값 변환
+// ReadingStatus ↔ server API value conversion
 extension ReadingStatusX on ReadingStatus {
+  // 서버에 보낼 API 문자열 값
+  // API string value to send to server
   String get apiValue {
     switch (this) {
       case ReadingStatus.wantToRead:
@@ -14,6 +23,8 @@ extension ReadingStatusX on ReadingStatus {
     }
   }
 
+  // 서버 API 값에서 ReadingStatus로 변환 (알 수 없는 값은 wantToRead)
+  // Convert from server API value to ReadingStatus (unknown values default to wantToRead)
   static ReadingStatus fromApiValue(String value) {
     switch (value) {
       case 'reading':
@@ -26,43 +37,31 @@ extension ReadingStatusX on ReadingStatus {
   }
 }
 
-class Book {
-  final String id;
-  final String title;
-  final String? author;
-  final String? publisher;
-  final String? pubDate;
-  final String? isbn13;
-  final String? coverUrl;
-  final String? description;
-  final String? categoryName;
-  final ReadingStatus status;
-  final int? rating; // 1–5
-  final String? notes;
-  final int? currentPage;
-  final int? totalPage;
-  final DateTime createdAt;
-  final String? representativeSentence;
+// 책 엔티티
+// Book entity
+@freezed
+abstract class Book with _$Book {
+  const factory Book({
+    required String id,
+    required String title,
+    String? author,
+    String? publisher,
+    @JsonKey(name: 'pub_date') String? pubDate,
+    String? isbn13,
+    @JsonKey(name: 'cover_url') String? coverUrl,
+    String? description,
+    @JsonKey(name: 'category_name') String? categoryName,
+    @Default(ReadingStatus.wantToRead) ReadingStatus status,
+    int? rating,
+    String? notes,
+    @JsonKey(name: 'current_page') int? currentPage,
+    @JsonKey(name: 'total_page') int? totalPage,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'representative_sentence') String? representativeSentence,
+  }) = _Book;
 
-  const Book({
-    required this.id,
-    required this.title,
-    this.author,
-    this.publisher,
-    this.pubDate,
-    this.isbn13,
-    this.coverUrl,
-    this.description,
-    this.categoryName,
-    this.status = ReadingStatus.wantToRead,
-    this.rating,
-    this.notes,
-    this.currentPage,
-    this.totalPage,
-    required this.createdAt,
-    this.representativeSentence,
-  });
-
+  // 서버 JSON 응답에서 Book 객체 생성
+  // Create Book from server JSON response
   factory Book.fromJson(Map<String, dynamic> json) {
     debugPrint('Book.fromJson >>> $json');
 
@@ -85,19 +84,19 @@ class Book {
       rating: json['rating'] == null
           ? null
           : (json['rating'] is int
-          ? json['rating'] as int
-          : int.tryParse(json['rating'].toString())),
+              ? json['rating'] as int
+              : int.tryParse(json['rating'].toString())),
       notes: json['notes']?.toString(),
       currentPage: json['current_page'] == null
           ? null
           : (json['current_page'] is int
-          ? json['current_page'] as int
-          : int.tryParse(json['current_page'].toString())),
+              ? json['current_page'] as int
+              : int.tryParse(json['current_page'].toString())),
       totalPage: json['total_page'] == null
           ? null
           : (json['total_page'] is int
-          ? json['total_page'] as int
-          : int.tryParse(json['total_page'].toString())),
+              ? json['total_page'] as int
+              : int.tryParse(json['total_page'].toString())),
       createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ??
           DateTime.now(),
       representativeSentence: json['representative_sentence']?.toString(),
