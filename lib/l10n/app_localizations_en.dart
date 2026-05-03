@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Book Log';
+  String get appTitle => 'Book SaGim';
 
   @override
   String get loginSubtitle => 'Track your reading journey';
@@ -45,7 +45,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedSentences => 'Saved Sentences';
 
   @override
-  String get noSentencesHint => 'Save a sentence you want to remember from this book';
+  String get noSentencesHint =>
+      'Save a sentence you want to remember from this book';
 
   @override
   String sentencesWithRepresentative(int count) {
@@ -61,7 +62,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setRepresentativeTitle => 'Set as representative sentence?';
 
   @override
-  String get setRepresentativeContent => 'This sentence will be marked as the representative sentence for this book.';
+  String get setRepresentativeContent =>
+      'This sentence will be marked as the representative sentence for this book.';
 
   @override
   String get cancel => 'Cancel';
@@ -96,7 +98,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSentencesYet => 'No saved sentences yet';
 
   @override
-  String get noSentencesSubtitle => 'Save a sentence you want to remember from this book.';
+  String get noSentencesSubtitle =>
+      'Save a sentence you want to remember from this book.';
 
   @override
   String get saveFirstSentence => 'Save first sentence';
@@ -167,7 +170,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAccount => 'Delete account';
 
   @override
-  String get deleteAccountConfirm => 'Are you sure you want to withdraw?\nAll data related to your account will be deleted.';
+  String get deleteAccountConfirm =>
+      'Are you sure you want to withdraw?\nAll data related to your account will be deleted.';
 
   @override
   String get withdraw => 'Withdraw';

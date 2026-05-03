@@ -82,4 +82,16 @@ class PushService {
   // FCM 토큰 갱신 스트림
   // Stream that emits new FCM token whenever it refreshes
   Stream<String> get onTokenRefresh => _messaging.onTokenRefresh;
+
+  Future<void> subscribeToTopics() async {
+    await _messaging.subscribeToTopic('daily');
+    await _messaging.subscribeToTopic('booklogTest');
+    debugPrint('📩 Subscribed to topics: daily, booklogTest');
+  }
+
+  Future<void> unsubscribeFromTopics() async {
+    await _messaging.unsubscribeFromTopic('daily');
+    await _messaging.unsubscribeFromTopic('booklogTest');
+    debugPrint('📩 Unsubscribed from topics');
+  }
 }

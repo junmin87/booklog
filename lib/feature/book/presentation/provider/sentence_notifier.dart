@@ -19,6 +19,7 @@ class SentenceNotifier extends FamilyAsyncNotifier<List<Sentence>, String> {
         .read(addSentenceUseCaseProvider)
         .execute(bookId, content, pageNumber: pageNumber);
     ref.invalidateSelf();
+    ref.read(bookNotifierProvider.notifier).refresh();  // 이거 추가
   }
 
   Future<void> setRepresentative(String bookId, String sentenceId) async {
@@ -26,7 +27,8 @@ class SentenceNotifier extends FamilyAsyncNotifier<List<Sentence>, String> {
         .read(setRepresentativeSentenceUseCaseProvider)
         .execute(bookId, sentenceId);
     ref.invalidateSelf();
-    ref.invalidate(bookNotifierProvider);
+    // ref.invalidate(bookNotifierProvider);
+    ref.read(bookNotifierProvider.notifier).refresh();
   }
 }
 

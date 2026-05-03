@@ -47,15 +47,15 @@ class AppTheme {
         foregroundColor: AppColors.white,
         elevation: 2,
       ),
-      cardTheme: CardTheme(
-        color: AppColors.cardBg,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.border),
-        ),
-        margin: EdgeInsets.zero,
-      ),
+      // cardTheme: CardTheme(
+      //   color: AppColors.cardBg,
+      //   elevation: 0,
+      //   shape: RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.circular(12),
+      //     side: const BorderSide(color: AppColors.border),
+      //   ),
+      //   margin: EdgeInsets.zero,
+      // ),
       dividerColor: AppColors.border,
     );
   }

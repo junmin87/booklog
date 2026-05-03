@@ -159,6 +159,9 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
           await repo.registerFcmToken(fcmToken);
         }
 
+        // 토픽 구독
+        await pushService.subscribeToTopics();
+
         // 토큰 갱신 시 자동으로 서버에 재등록
         // Auto-register with server when token refreshes
         _tokenRefreshSub?.cancel();
@@ -173,6 +176,42 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
         debugPrint('[FCM] 토큰 등록 실패: $e'); // FCM token registration failed
       }
     });
+  }
+
+  // 카카오 로그인
+  // 카카오 로그인
+
+// 카카오 로그인 → 토큰 저장 → 사용자 정보 로드 → 상태 업데이트
+// Kakao sign-in → save token → load user profile → update state
+  Future<void> signInWithKakao() async {
+    state = const AsyncValue.loading();
+    try {
+      debugPrint('🟡 [1] signInWithKakao 시작');
+      final repo = ref.read(authRepositoryProvider);
+
+      final result = await repo.kakaoLogin();
+      debugPrint('🟡 [2] kakaoLogin 완료: $result');
+
+      await repo.saveToken(result['token'] as String);
+      debugPrint('🟡 [3] 토큰 저장 완료');
+
+      final token = result['token'] as String;
+      final user = await repo.getMe(token);
+      debugPrint('🟡 [4] getMe 완료: $user');
+
+      state = AsyncValue.data(AuthNotifierState(
+        user: user,
+        countryCode: result['country_code'] as String?,
+      ));
+      debugPrint('🟡 [5] 상태 업데이트 완료');
+      _registerFcmToken();
+    } catch (e, stack) {
+      debugPrint('🟡 [ERROR] $e');
+      debugPrint('🟡 [STACK] $stack');
+      state = const AsyncValue.data(
+        AuthNotifierState(error: 'Login failed. Please try again.'),
+      );
+    }
   }
 }
 

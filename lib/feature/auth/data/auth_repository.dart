@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../core/error/api_exception.dart';
@@ -158,5 +159,37 @@ class AuthRepository {
         'language_code': languageCode,
       },
     );
+  }
+
+  // 카카오 로그인 추가
+// ── 카카오 로그인 (Android) ─────────────────────────
+// ── Kakao Sign-In (Android) ─────────────────────────
+  Future<Map<String, dynamic>> kakaoLogin() async {
+    OAuthToken token;
+
+    // 카카오톡 설치 여부에 따라 로그인 방식 분기
+    // Use KakaoTalk login if installed, otherwise use account login
+    if (await isKakaoTalkInstalled()) {
+      token = await UserApi.instance.loginWithKakaoTalk();
+    } else {
+      token = await UserApi.instance.loginWithKakaoAccount();
+    }
+
+    debugPrint('🟡 [repo] 카카오 accessToken: ${token.accessToken}');
+
+    final data = await _apiClient.post(
+      '/kakao/login',
+      {'accessToken': token.accessToken},
+      authenticated: false,
+    );
+
+    final serverToken = data['serverToken'] as String?;
+    if (serverToken == null) throw Exception('서버 응답에 serverToken 없음');
+    final countryCode = data['country_code'] as String?;
+
+    return {
+      'token': serverToken,
+      'country_code': countryCode,
+    };
   }
 }

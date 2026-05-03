@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/network/api_client.dart';
+import '../core/platform/native_notification_channel.dart';
 import '../core/service/push_service.dart';
 import '../feature/auth/data/auth_repository.dart';
 import '../feature/book/data/book_repository_impl.dart';
@@ -13,6 +14,10 @@ import '../feature/book/domain/usecase/get_books_use_case.dart';
 import '../feature/book/domain/usecase/get_sentences_use_case.dart';
 import '../feature/book/domain/usecase/set_representative_sentence_use_case.dart';
 
+
+final nativeNotificationServiceProvider = Provider<NativeNotificationService>(
+  (ref) => NativeNotificationService(),
+);
 
 final pushServiceProvider = Provider<PushService>((ref) => PushService());
 

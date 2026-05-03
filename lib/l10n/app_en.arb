@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appTitle": "Book Log",
+  "appTitle": "Book SaGim",
   "@appTitle": { "description": "Application title" },
 
   "loginSubtitle": "Track your reading journey",

@@ -9,6 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_log/l10n/app_localizations.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
 import 'app/shell_page.dart';
 import 'app/theme.dart';
@@ -28,6 +29,7 @@ Future<void> main() async {
   await dotenv.load();
   await Firebase.initializeApp();
   await PushService().init();
+  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
   await FirebaseAnalytics.instance;
 
   if (!kDebugMode) {
