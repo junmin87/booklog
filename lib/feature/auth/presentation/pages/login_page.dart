@@ -60,7 +60,7 @@ class LoginPage extends ConsumerWidget {
                     onPressed: () =>
                         ref.read(authNotifierProvider.notifier).signInWithApple(),
                   )
-                else
+                else ...[
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -90,6 +90,20 @@ class LoginPage extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () =>
+                        ref.read(authNotifierProvider.notifier).enterGuestMode(),
+                    child: const Text(
+                      '건너뛰기',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
                 if (auth?.error != null) ...[
                   const SizedBox(height: 20),
                   Text(

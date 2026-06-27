@@ -125,6 +125,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedToAddBook => 'Failed to add book';
 
   @override
+  String get searchFailedMessage =>
+      'Search failed. Please try again in a moment.';
+
+  @override
+  String get bookAddFailedMessage =>
+      'Couldn\'t add the book. Please try again in a moment.';
+
+  @override
   String get sentenceRequired => 'Please enter a sentence';
 
   @override
@@ -193,4 +201,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sentenceTooLong => 'Too long Text';
+
+  @override
+  String get bookStatusWantToRead => 'Want to read';
+
+  @override
+  String get bookStatusReading => 'Reading';
+
+  @override
+  String get bookStatusCompleted => 'Completed';
+
+  @override
+  String get bookStatusChangeTitle => 'Change reading status';
+
+  @override
+  String get bookStatusUpdateFailed => 'Failed to update reading status';
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../../core/service/review_service.dart';
+import '../../../../core/utils/guest_guard.dart';
 import '../../../../core/utils/validators.dart';
 import '../../domain/entity/book_search_result.dart';
 import '../provider/book_search_provider.dart';
@@ -15,6 +16,22 @@ class BookSearchPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncState = ref.watch(bookSearchNotifierProvider);
     final state = asyncState.valueOrNull ?? const BookSearchState();
+
+    // Surface search errors via a transient SnackBar instead of taking over
+    // the whole screen with raw error text.
+    ref.listen(bookSearchNotifierProvider, (prev, next) {
+      final error = next.valueOrNull?.error;
+      if (error != null && error != prev?.valueOrNull?.error) {
+        final l10n = AppLocalizations.of(context)!;
+        final message = switch (error) {
+          BookSearchError.searchFailed => l10n.searchFailedMessage,
+          BookSearchError.addFailed => l10n.bookAddFailedMessage,
+        };
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -31,12 +48,6 @@ class BookSearchPage extends ConsumerWidget {
       BookSearchState state) {
     if (isSearching) {
       return const Center(child: CircularProgressIndicator());
-    }
-
-    if (state.error != null) {
-      return Center(
-        child: Text(state.error!, style: const TextStyle(color: AppColors.errorRed)),
-      );
     }
 
     if (!state.hasSearched) {
@@ -172,6 +183,7 @@ class _BookTile extends ConsumerWidget {
   }
 
   Future<void> _add(BuildContext context, WidgetRef ref) async {
+    if (guardGuest(context, ref)) return;
     final success =
     await ref.read(bookSearchNotifierProvider.notifier).addBook(result);
     if (!context.mounted) return;
@@ -184,9 +196,8 @@ class _BookTile extends ConsumerWidget {
       );
       Navigator.of(context).pop();
     } else {
-      final error = ref.read(bookSearchNotifierProvider).value?.error;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error ?? l10n.failedToAddBook)),
+        SnackBar(content: Text(l10n.bookAddFailedMessage)),
       );
     }
   }

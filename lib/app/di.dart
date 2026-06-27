@@ -13,6 +13,7 @@ import '../feature/book/domain/usecase/add_sentence_use_case.dart';
 import '../feature/book/domain/usecase/get_books_use_case.dart';
 import '../feature/book/domain/usecase/get_sentences_use_case.dart';
 import '../feature/book/domain/usecase/set_representative_sentence_use_case.dart';
+import '../feature/book/domain/usecase/update_book_status_use_case.dart';
 
 
 final nativeNotificationServiceProvider = Provider<NativeNotificationService>(
@@ -42,6 +43,10 @@ final addBookUseCaseProvider = Provider<AddBookUseCase>(
 
 final getBooksUseCaseProvider = Provider<GetBooksUseCase>(
   (ref) => GetBooksUseCase(ref.watch(bookRepositoryProvider)),
+);
+
+final updateBookStatusUseCaseProvider = Provider<UpdateBookStatusUseCase>(
+  (ref) => UpdateBookStatusUseCase(ref.watch(bookRepositoryProvider)),
 );
 
 final addSentenceUseCaseProvider = Provider<AddSentenceUseCase>(

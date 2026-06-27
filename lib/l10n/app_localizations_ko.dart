@@ -122,6 +122,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get failedToAddBook => '책 추가에 실패했어요';
 
   @override
+  String get searchFailedMessage => '검색에 실패했어요. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get bookAddFailedMessage => '책을 추가하지 못했어요. 잠시 후 다시 시도해주세요.';
+
+  @override
   String get sentenceRequired => '문장을 입력해주세요';
 
   @override
@@ -189,4 +195,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get sentenceTooLong => '문장이 너무깁니다. (500자 제한)';
+
+  @override
+  String get bookStatusWantToRead => '읽고 싶어요';
+
+  @override
+  String get bookStatusReading => '읽는 중';
+
+  @override
+  String get bookStatusCompleted => '다 읽었어요';
+
+  @override
+  String get bookStatusChangeTitle => '독서 상태 변경';
+
+  @override
+  String get bookStatusUpdateFailed => '독서 상태 변경에 실패했어요';
 }

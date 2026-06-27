@@ -126,6 +126,12 @@
   "failedToAddBook": "Failed to add book",
   "@failedToAddBook": { "description": "Snackbar message when adding a book fails" },
 
+  "searchFailedMessage": "Search failed. Please try again in a moment.",
+  "@searchFailedMessage": { "description": "User-friendly message shown when a book search fails" },
+
+  "bookAddFailedMessage": "Couldn't add the book. Please try again in a moment.",
+  "@bookAddFailedMessage": { "description": "User-friendly message shown when adding a book fails" },
+
   "sentenceRequired": "Please enter a sentence",
   "@sentenceRequired": { "description": "Validation error when sentence field is empty" },
 
@@ -192,7 +198,20 @@
   "@addFirstBook": { "description": "CTA button on empty books page" },
 
   "sentenceTooLong": "Too long Text",
-  "@sentenceTooLong": { "description": "text is too long, limit (500)" }
+  "@sentenceTooLong": { "description": "text is too long, limit (500)" },
 
+  "bookStatusWantToRead": "Want to read",
+  "@bookStatusWantToRead": { "description": "Reading status label: want to read" },
 
+  "bookStatusReading": "Reading",
+  "@bookStatusReading": { "description": "Reading status label: currently reading" },
+
+  "bookStatusCompleted": "Completed",
+  "@bookStatusCompleted": { "description": "Reading status label: finished reading" },
+
+  "bookStatusChangeTitle": "Change reading status",
+  "@bookStatusChangeTitle": { "description": "Title of the reading status change bottom sheet" },
+
+  "bookStatusUpdateFailed": "Failed to update reading status",
+  "@bookStatusUpdateFailed": { "description": "Snackbar message when updating reading status fails" }
 }

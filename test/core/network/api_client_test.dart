@@ -16,6 +16,8 @@ void main() {
   late MockFlutterSecureStorage mockStorage;
   late ApiClient apiClient;
 
+  // 각 테스트 전에 Dio, MockStorage, ApiClient 초기화
+  // Initialize Dio, MockStorage, and ApiClient before each test
   setUp(() {
     dio = Dio(BaseOptions(baseUrl: 'https://test.example.com'));
     dioAdapter = DioAdapter(dio: dio);
@@ -28,14 +30,18 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // Authentication / AuthInterceptor
+  // 인증 / AuthInterceptor 테스트
+  // Authentication / AuthInterceptor tests
   // ---------------------------------------------------------------------------
   group('AuthInterceptor', () {
+    // 인증 요청 시 Bearer 토큰이 헤더에 추가되는지 확인
+    // Verify Bearer token is attached to header for authenticated requests
     test('attaches Bearer token when authenticated is true', () async {
       when(mockStorage.read(key: 'serverToken'))
           .thenAnswer((_) async => 'test-token');
 
-      // Capture the header set by AuthInterceptor.
+      // AuthInterceptor가 설정한 헤더를 캡처
+      // Capture the header set by AuthInterceptor
       String? capturedAuth;
       dio.interceptors.add(InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -50,6 +56,8 @@ void main() {
       expect(capturedAuth, 'Bearer test-token');
     });
 
+    // 비인증 요청 시 토큰이 헤더에 추가되지 않는지 확인
+    // Verify token is NOT attached for unauthenticated requests
     test('does not attach token when authenticated is false', () async {
       String? capturedAuth;
       dio.interceptors.add(InterceptorsWrapper(
@@ -66,6 +74,8 @@ void main() {
       verifyNever(mockStorage.read(key: anyNamed('key')));
     });
 
+    // 저장된 토큰이 없으면 401 ApiException을 던지는지 확인
+    // Verify 401 ApiException is thrown when no token is stored
     test('throws ApiException with 401 when no token is stored', () async {
       when(mockStorage.read(key: 'serverToken'))
           .thenAnswer((_) async => null);
@@ -82,9 +92,12 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // Error handling
+  // 에러 처리 테스트
+  // Error handling tests
   // ---------------------------------------------------------------------------
   group('Error handling', () {
+    // 서버 에러 상태 코드가 ApiException으로 변환되는지 확인
+    // Verify server error status codes are converted to ApiException
     test('converts server error status to ApiException', () async {
       when(mockStorage.read(key: 'serverToken'))
           .thenAnswer((_) async => 'token');
@@ -103,13 +116,15 @@ void main() {
       );
     });
 
+    // 서버 에러 시 에러 인터셉터 체인이 호출되는지 확인
+    // Verify error interceptor chain is invoked on server error
     test('error interceptor chain is invoked on server error '
         '(CrashlyticsInterceptor records errors in production)', () async {
       when(mockStorage.read(key: 'serverToken'))
           .thenAnswer((_) async => 'token');
 
-      // Simulates what CrashlyticsInterceptor does: verifies that the error
-      // interceptor chain is invoked when the server returns an error status.
+      // CrashlyticsInterceptor가 하는 것을 시뮬레이션: 서버 에러 시 인터셉터 체인 호출 검증
+      // Simulates CrashlyticsInterceptor: verifies interceptor chain is called on server error
       bool errorInterceptorCalled = false;
       dio.interceptors.add(InterceptorsWrapper(
         onError: (error, handler) {
@@ -132,6 +147,8 @@ void main() {
       expect(errorInterceptorCalled, isTrue);
     });
 
+    // 알 수 없는 에러 시 statusCode 0인 ApiException 반환 확인
+    // Verify ApiException with statusCode 0 is returned for unknown errors
     test('returns ApiException with statusCode 0 for unknown errors', () async {
       when(mockStorage.read(key: 'serverToken'))
           .thenAnswer((_) async => 'token');
@@ -158,7 +175,8 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // HTTP methods — GET
+  // HTTP 메서드 — GET 테스트
+  // HTTP methods — GET tests
   // ---------------------------------------------------------------------------
   group('get', () {
     setUp(() {
@@ -166,6 +184,8 @@ void main() {
           .thenAnswer((_) async => 'token');
     });
 
+    // 응답이 올바르게 파싱되는지 확인
+    // Verify response is parsed correctly
     test('returns parsed response', () async {
       dioAdapter.onGet(
         '/books',
@@ -176,6 +196,8 @@ void main() {
       expect(result, {'title': 'Test Book'});
     });
 
+    // 쿼리 파라미터가 올바르게 전달되는지 확인
+    // Verify query parameters are passed correctly
     test('passes query parameters', () async {
       dioAdapter.onGet(
         '/books',
@@ -192,7 +214,8 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // HTTP methods — POST
+  // HTTP 메서드 — POST 테스트
+  // HTTP methods — POST tests
   // ---------------------------------------------------------------------------
   group('post', () {
     setUp(() {
@@ -200,6 +223,8 @@ void main() {
           .thenAnswer((_) async => 'token');
     });
 
+    // 요청 body를 전송하고 응답이 올바르게 파싱되는지 확인
+    // Verify body is sent and response is parsed correctly
     test('sends body and returns parsed response', () async {
       dioAdapter.onPost(
         '/books',
@@ -211,6 +236,8 @@ void main() {
       expect(result, {'id': '1', 'title': 'New Book'});
     });
 
+    // 응답 body가 null이면 빈 Map을 반환하는지 확인
+    // Verify empty map is returned when response body is null
     test('returns empty map for null response body', () async {
       dioAdapter.onPost(
         '/action',
@@ -222,6 +249,8 @@ void main() {
       expect(result, <String, dynamic>{});
     });
 
+    // 응답 body가 빈 문자열이면 빈 Map을 반환하는지 확인
+    // Verify empty map is returned when response body is empty string
     test('returns empty map for empty string response body', () async {
       dioAdapter.onPost(
         '/action',
@@ -233,6 +262,8 @@ void main() {
       expect(result, <String, dynamic>{});
     });
 
+    // 상태 코드가 successCodes에 없으면 ApiException을 던지는지 확인
+    // Verify ApiException is thrown when status is not in successCodes
     test('throws ApiException when status is not in successCodes', () async {
       dioAdapter.onPost(
         '/books',
@@ -248,7 +279,8 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // HTTP methods — PATCH
+  // HTTP 메서드 — PATCH 테스트
+  // HTTP methods — PATCH tests
   // ---------------------------------------------------------------------------
   group('patch', () {
     setUp(() {
@@ -256,6 +288,8 @@ void main() {
           .thenAnswer((_) async => 'token');
     });
 
+    // 요청 body를 전송하고 응답이 올바르게 파싱되는지 확인
+    // Verify body is sent and response is parsed correctly
     test('sends body and returns parsed response', () async {
       dioAdapter.onPatch(
         '/books/1',
@@ -268,6 +302,8 @@ void main() {
       expect(result, {'id': '1', 'updated': true});
     });
 
+    // 204 응답 시 빈 Map을 반환하는지 확인
+    // Verify empty map is returned for 204 response
     test('returns empty map for 204 response', () async {
       dioAdapter.onPatch(
         '/books/1',
@@ -282,7 +318,8 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // HTTP methods — DELETE
+  // HTTP 메서드 — DELETE 테스트
+  // HTTP methods — DELETE tests
   // ---------------------------------------------------------------------------
   group('delete', () {
     setUp(() {
@@ -290,6 +327,8 @@ void main() {
           .thenAnswer((_) async => 'token');
     });
 
+    // 응답이 올바르게 파싱되는지 확인
+    // Verify response is parsed correctly
     test('returns parsed response', () async {
       dioAdapter.onDelete(
         '/books/1',
@@ -300,6 +339,8 @@ void main() {
       expect(result, {'deleted': true});
     });
 
+    // 204 응답 시 빈 Map을 반환하는지 확인
+    // Verify empty map is returned for 204 response
     test('returns empty map for 204 response', () async {
       dioAdapter.onDelete(
         '/books/1',

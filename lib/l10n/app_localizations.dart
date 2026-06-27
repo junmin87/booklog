@@ -308,6 +308,18 @@ abstract class AppLocalizations {
   /// **'Failed to add book'**
   String get failedToAddBook;
 
+  /// User-friendly message shown when a book search fails
+  ///
+  /// In en, this message translates to:
+  /// **'Search failed. Please try again in a moment.'**
+  String get searchFailedMessage;
+
+  /// User-friendly message shown when adding a book fails
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add the book. Please try again in a moment.'**
+  String get bookAddFailedMessage;
+
   /// Validation error when sentence field is empty
   ///
   /// In en, this message translates to:
@@ -445,6 +457,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too long Text'**
   String get sentenceTooLong;
+
+  /// Reading status label: want to read
+  ///
+  /// In en, this message translates to:
+  /// **'Want to read'**
+  String get bookStatusWantToRead;
+
+  /// Reading status label: currently reading
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get bookStatusReading;
+
+  /// Reading status label: finished reading
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get bookStatusCompleted;
+
+  /// Title of the reading status change bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Change reading status'**
+  String get bookStatusChangeTitle;
+
+  /// Snackbar message when updating reading status fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update reading status'**
+  String get bookStatusUpdateFailed;
 }
 
 class _AppLocalizationsDelegate

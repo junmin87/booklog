@@ -176,7 +176,7 @@ class SentenceCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              'BOOK LOG',
+                              '북새김',
                               style: TextStyle(
                                 color: AppColors.white,
                                 fontSize: Responsive.sp(10),

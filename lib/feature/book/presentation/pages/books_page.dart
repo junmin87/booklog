@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
+import '../../../../core/utils/guest_guard.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../domain/entity/book.dart';
 import '../provider/book_provider.dart';
+import '../widgets/reading_status_label.dart';
 import 'book_detail_page.dart';
 import 'book_search_page.dart';
 
@@ -64,9 +66,12 @@ class BooksPage extends ConsumerWidget {
                   Text(l10n.noBooksYet, style: AppTextStyles.notoMuted),
                   const SizedBox(height: 24),                          // 추가
                   OutlinedButton(                                       // 추가
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const BookSearchPage()),
-                    ),
+                    onPressed: () {
+                      if (guardGuest(context, ref)) return;
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const BookSearchPage()),
+                      );
+                    },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.accent),
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -92,9 +97,12 @@ class BooksPage extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const BookSearchPage()),
-        ),
+        onPressed: () {
+          if (guardGuest(context, ref)) return;
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const BookSearchPage()),
+          );
+        },
         backgroundColor: AppColors.accent,
         child: const Icon(Icons.add, color: AppColors.white),
       ),
@@ -267,6 +275,27 @@ class _BookCard extends StatelessWidget {
                           ),
                         ],
                       ],
+                    ),
+                  ),
+                ),
+
+                // 우측 상단 독서 상태 칩
+                // Reading status chip at the top-right
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.black.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      book.status.label(AppLocalizations.of(context)!),
+                      style: AppTextStyles.notoChipMuted,
                     ),
                   ),
                 ),

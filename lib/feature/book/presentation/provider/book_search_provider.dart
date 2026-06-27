@@ -4,13 +4,15 @@ import '../../../../app/di.dart';
 import '../../domain/entity/book_search_result.dart';
 import 'book_provider.dart';
 
+enum BookSearchError { searchFailed, addFailed }
+
 class BookSearchState {
   final List<BookSearchResult> results;
   final List<BookSearchResult> bestsellers;
   final bool isAdding;
   final bool isLoadingBestsellers;
   final bool hasSearched;
-  final String? error;
+  final BookSearchError? error;
 
   const BookSearchState({
     this.results = const [],
@@ -27,7 +29,7 @@ class BookSearchState {
     bool? isAdding,
     bool? isLoadingBestsellers,
     bool? hasSearched,
-    String? error,
+    BookSearchError? error,
   }) {
     return BookSearchState(
       results: results ?? this.results,
@@ -70,6 +72,7 @@ class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
       return;
     }
 
+    // Clear any previous error before starting a new search.
     state = const AsyncValue.loading();
     try {
       final results =
@@ -79,11 +82,11 @@ class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
         bestsellers: bestsellers,
         hasSearched: true,
       ));
-    } catch (e) {
+    } catch (_) {
       state = AsyncValue.data(BookSearchState(
         bestsellers: bestsellers,
         hasSearched: true,
-        error: e.toString(),
+        error: BookSearchError.searchFailed,
       ));
     }
   }
@@ -96,8 +99,10 @@ class BookSearchNotifier extends AutoDisposeAsyncNotifier<BookSearchState> {
       ref.invalidate(bookNotifierProvider);
       state = AsyncValue.data(current.copyWith(isAdding: false));
       return true;
-    } catch (e) {
-      state = AsyncValue.data(current.copyWith(isAdding: false, error: e.toString()));
+    } catch (_) {
+      // Do not pollute search screen state with this error; the caller
+      // surfaces a user-friendly message via SnackBar.
+      state = AsyncValue.data(current.copyWith(isAdding: false));
       return false;
     }
   }

@@ -70,6 +70,20 @@ class BookRepositoryImpl implements BookRepository {
   }
 
   @override
+  Future<void> updateStatus(String bookId, ReadingStatus status) async {
+    try {
+      await _api.patch(
+        '/books/$bookId/status',
+        body: {'status': status.apiValue},
+      );
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(statusCode: 0, message: e.toString());
+    }
+  }
+
+  @override
   Future<List<Book>> getBooks() async {
     try {
       final data = await _api.get('/book/list');

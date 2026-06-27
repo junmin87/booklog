@@ -6,4 +6,5 @@ abstract class BookRepository {
   Future<List<BookSearchResult>> getBestsellers();
   Future<void> addBook(Book book);
   Future<List<Book>> getBooks();
+  Future<void> updateStatus(String bookId, ReadingStatus status);
 }

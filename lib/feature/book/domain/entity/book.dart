@@ -15,11 +15,11 @@ extension ReadingStatusX on ReadingStatus {
   String get apiValue {
     switch (this) {
       case ReadingStatus.wantToRead:
-        return 'wish';
+        return 'want_to_read';
       case ReadingStatus.reading:
         return 'reading';
       case ReadingStatus.finished:
-        return 'done';
+        return 'completed';
     }
   }
 
@@ -29,7 +29,7 @@ extension ReadingStatusX on ReadingStatus {
     switch (value) {
       case 'reading':
         return ReadingStatus.reading;
-      case 'done':
+      case 'completed':
         return ReadingStatus.finished;
       default:
         return ReadingStatus.wantToRead;

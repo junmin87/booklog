@@ -64,9 +64,16 @@ Future<void> main() async {
     showDialog(
       context: ctx,
       barrierDismissible: false,
+      // builder: (_) => const UpdateDialog(
+      //   title: 'Update Available',
+      //   message: 'A new version of Book Log is available. Please update to continue.',
+      //   updateLabel: 'Update',
+      //   laterLabel: 'Later',
+      //   updateUrl: 'https://apps.apple.com/app/id6762139444',
+      // ),
       builder: (_) => const UpdateDialog(
-        title: 'Update Available',
-        message: 'A new version of Book Log is available. Please update to continue.',
+        title: '업데이트 알림',
+        message: '북새김 앱의 새 업데이트가 있어요.',
         updateLabel: 'Update',
         laterLabel: 'Later',
         updateUrl: 'https://apps.apple.com/app/id6762139444',

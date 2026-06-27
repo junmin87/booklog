@@ -52,6 +52,10 @@ abstract final class AppTextStyles {
   /// Unstyled base (inherits theme color/size; used for SnackBar content)
   static final TextStyle notoBase = GoogleFonts.notoSerifKr();
 
+  /// Bottom sheet list item title (readable on dark surfaces)
+  static final TextStyle notoBottomSheetItem = GoogleFonts.notoSerifKr(
+      color: AppColors.onDark, fontSize: 16, fontWeight: FontWeight.w500);
+
   /// Primary book title in hero card
   static final TextStyle notoBookTitle = GoogleFonts.notoSerifKr(
       color: AppColors.onDark,

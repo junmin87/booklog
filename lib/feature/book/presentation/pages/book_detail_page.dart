@@ -4,12 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../../app/app_text_styles.dart';
+import '../../../../core/utils/guest_guard.dart';
 import '../../domain/entity/book.dart';
 import '../provider/book_provider.dart';
 import '../provider/sentence_notifier.dart';
 import '../widgets/book_cover.dart';
 import '../widgets/empty_sentence_view.dart';
 import '../widgets/meta_chip.dart';
+import '../widgets/reading_status_label.dart';
 import '../widgets/section_header.dart';
 import 'sentence_card_page.dart';
 import 'sentence_input_page.dart';
@@ -112,6 +114,7 @@ class BookDetailPage extends ConsumerWidget {
                   hasScrollBody: false,
                   child: EmptySentenceView(
                     onAdd: () async {
+                      if (guardGuest(context, ref)) return;
                       await Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => SentenceInputPage(book: book),
@@ -174,6 +177,7 @@ class BookDetailPage extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.accent,
         onPressed: () async {
+          if (guardGuest(context, ref)) return;
           await Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => SentenceInputPage(book: book),
@@ -246,7 +250,7 @@ class BookDetailPage extends ConsumerWidget {
 
 // ─── Hero Section (border removed, quote bar added) ─────────────────────────
 
-class _BookHeroSection extends StatelessWidget {
+class _BookHeroSection extends ConsumerWidget {
   const _BookHeroSection({
     required this.book,
     required this.sentenceCount,
@@ -256,7 +260,7 @@ class _BookHeroSection extends StatelessWidget {
   final int sentenceCount;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final hasRepresentative =
         book.representativeSentence != null && book.representativeSentence!.trim().isNotEmpty;
 
@@ -290,10 +294,21 @@ class _BookHeroSection extends StatelessWidget {
                             Text(book.author!, style: AppTextStyles.notoAuthor),
                           ],
                           const SizedBox(height: 12),
-                          MetaChip(
-                            label: sentenceCount == 0
-                                ? AppLocalizations.of(context)!.noSentencesChip
-                                : AppLocalizations.of(context)!.sentenceCountChip(sentenceCount),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              MetaChip(
+                                label: sentenceCount == 0
+                                    ? AppLocalizations.of(context)!.noSentencesChip
+                                    : AppLocalizations.of(context)!
+                                        .sentenceCountChip(sentenceCount),
+                              ),
+                              _StatusChip(
+                                status: book.status,
+                                onTap: () => _showStatusSheet(context, ref),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -354,6 +369,113 @@ class _BookHeroSection extends StatelessWidget {
                   ),
                 ),
               ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 독서 상태 변경 바텀시트
+  // Reading status change bottom sheet
+  Future<void> _showStatusSheet(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final selected = await showModalBottomSheet<ReadingStatus>(
+      context: context,
+      backgroundColor: AppColors.darkCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                child: Text(
+                  l10n.bookStatusChangeTitle,
+                  style: AppTextStyles.notoDialogTitle,
+                ),
+              ),
+              for (final status in ReadingStatus.values)
+                ListTile(
+                  onTap: () => Navigator.pop(sheetContext, status),
+                  title: Text(
+                    status.label(l10n),
+                    style: AppTextStyles.notoBottomSheetItem,
+                  ),
+                  trailing: status == book.status
+                      ? const Icon(Icons.check_rounded, color: AppColors.accent)
+                      : null,
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selected == null || selected == book.status) return;
+
+    try {
+      await ref
+          .read(bookNotifierProvider.notifier)
+          .updateStatus(book.id, selected);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.bookStatusUpdateFailed,
+              style: AppTextStyles.notoBase,
+            ),
+            backgroundColor: AppColors.errorSnackBarBg,
+          ),
+        );
+      }
+    }
+  }
+}
+
+// ─── Status Chip (tappable) ─────────────────────────────────────────────────
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.status, required this.onTap});
+
+  final ReadingStatus status;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
+          decoration: BoxDecoration(
+            color: AppColors.accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: AppColors.accent.withValues(alpha: 0.22),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                status.label(AppLocalizations.of(context)!),
+                style: AppTextStyles.notoChipAccent,
+              ),
+              const SizedBox(width: 2),
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 16,
+                color: AppColors.accent,
+              ),
             ],
           ),
         ),

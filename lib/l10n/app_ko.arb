@@ -36,6 +36,8 @@
   "searchFieldHint": "제목 또는 저자...",
   "bookAdded": "\"{title}\" 추가됨",
   "failedToAddBook": "책 추가에 실패했어요",
+  "searchFailedMessage": "검색에 실패했어요. 잠시 후 다시 시도해주세요.",
+  "bookAddFailedMessage": "책을 추가하지 못했어요. 잠시 후 다시 시도해주세요.",
   "sentenceRequired": "문장을 입력해주세요",
   "pageNumberOnly": "페이지는 숫자로 입력해주세요",
   "saveSentenceTitle": "문장 남기기",
@@ -59,5 +61,10 @@
   "languageEnglish": "English",
   "bestseller": "베스트셀러",
   "addFirstBook": "+ 첫 번째 책 추가하기",
-  "sentenceTooLong": "문장이 너무깁니다. (500자 제한)"
+  "sentenceTooLong": "문장이 너무깁니다. (500자 제한)",
+  "bookStatusWantToRead": "읽고 싶어요",
+  "bookStatusReading": "읽는 중",
+  "bookStatusCompleted": "다 읽었어요",
+  "bookStatusChangeTitle": "독서 상태 변경",
+  "bookStatusUpdateFailed": "독서 상태 변경에 실패했어요"
 }

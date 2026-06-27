@@ -43,7 +43,7 @@ abstract class BookSearchResult with _$BookSearchResult {
 // 검색 결과를 Book 엔티티로 변환하는 확장
 // Extension to convert search result to a Book entity
 extension BookSearchResultX on BookSearchResult {
-  Book toBook({ReadingStatus status = ReadingStatus.reading}) => Book(
+  Book toBook({ReadingStatus status = ReadingStatus.wantToRead}) => Book(
         id: id,
         title: title,
         author: author,

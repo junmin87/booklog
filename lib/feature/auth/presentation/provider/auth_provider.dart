@@ -14,18 +14,20 @@ class AuthNotifierState {
   final String? countryCode;
   final String? languageCode;
   final String? error;
+  final bool isGuest;
 
-  const AuthNotifierState({this.user, this.countryCode, this.languageCode, this.error});
+  const AuthNotifierState({this.user, this.countryCode, this.languageCode, this.error, this.isGuest = false});
 
-  bool get isLoggedIn => user != null;
+  bool get isLoggedIn => user != null || isGuest;
   bool get isCountrySelected => countryCode != null;
 
-  AuthNotifierState copyWith({AuthUser? user, String? countryCode, String? languageCode, String? error}) {
+  AuthNotifierState copyWith({AuthUser? user, String? countryCode, String? languageCode, String? error, bool? isGuest}) {
     return AuthNotifierState(
       user: user ?? this.user,
       countryCode: countryCode ?? this.countryCode,
       languageCode: languageCode ?? this.languageCode,
       error: error ?? this.error,
+      isGuest: isGuest ?? this.isGuest,
     );
   }
 }
@@ -176,6 +178,14 @@ class AuthNotifier extends AsyncNotifier<AuthNotifierState> {
         debugPrint('[FCM] 토큰 등록 실패: $e'); // FCM token registration failed
       }
     });
+  }
+
+  // 게스트 모드 진입 (Android 전용, Google Play 심사용)
+  // Enter guest mode (Android only, for Google Play review)
+  void enterGuestMode() {
+    state = const AsyncValue.data(
+      AuthNotifierState(isGuest: true, countryCode: 'KR', languageCode: 'ko'),
+    );
   }
 
   // 카카오 로그인
