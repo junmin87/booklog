@@ -51,6 +51,4 @@ An iOS app for saving meaningful sentences from books and turning them into shar
 
 🚧 Active development
 
-## Contact
 
-junmin.lee15@gmail.com
